@@ -7,7 +7,7 @@
 #  
 
 import socket
-from blinking-ledt import BlinkyLight
+from blinking-led import BlinkyLight
 
 blinky = BlinkyLight(26) #create blinky light object
 frequency = 1
