@@ -1,0 +1,3 @@
+Hello. We want this file to be transfered to the client Pi as "transfer.txt". 
+
+The file should appear in Folder as soon as the connection will be established
