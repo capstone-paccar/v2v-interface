@@ -1,40 +1,39 @@
 import socket
-import sys
+import select
 
-# Create a UDP socket
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-ip = socket.gethostbyname(socket.gethostname())
-port = 5001
-FORMAT = "utf-8"
-SIZE = 1024
+host='0.0.0.0'
 
-# Bind the socket to the port
-server_address = (ip, port)
-s.bind(server_address)
-print("Do Ctrl+c to exit the program !!")
+port=6000
+timeout = 3
 
-while True:
-    print("####### Server is listening #######")
-    data, addr = s.recvfrom(SIZE)
-    print("[NEW CONNECTION] {} connected.".format(addr))
-    print("\n\n Files are being transfered ", data.decode('utf-8'), "\n\n")
+s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+s.bind(("",port))
+
+print("waiting on port:", port)
+
+while 1:
+
+    data, clientaddr= s.recvfrom(1024)
+    if data:
+        print("File name: ", data)
+        filename = data.strip()
+    f = open(filename, "wb")
     
-    #filename = conn.recv(SIZE).decode(FORMAT)
-    print("[RECV] Receiving the filename.")
-    file = open("client.txt", "w")
+    while True:
+        ready = select.select([s], [], [], timeout)
+        if ready[0]:
+            data, addr = s.recvfrom(1024)
+            f.write(data)
+        else:
+            print("{} Finish!".format(filename))
+            f.close()
+            break
 
-    print("[RECV] Receiving the file data.")
+reply="Got it thanks!"
 
-    try:
-        while(data):
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            file.write(data)
-            data, addr = s.recvfrom(SIZE)
-    except:
-        file.close()
-        s.close()
+reply=reply.encode('utf-8')
 
-    file.close()
-    s.close()
-    print("[DISCONNECTED] {} Download complete.".format(addr))
+s.sendto(reply,clientaddr)
 
+clientmsg, clientaddr=s.recvfrom(1024)
