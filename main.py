@@ -15,6 +15,8 @@ THIS PROGRAM ALSO USES THREADING ~ Threads are only used here in the program!!!
 
 '''
 
+import threading
+import collections
 #create the dictionary function and callOtherScripts function 
 #also can add more functions if needed here
 '''
@@ -25,6 +27,14 @@ callOtherScripts(needUpdate, hasUpdate) --> takes two parameters of IP's of pis
     //after the call the update should be done!
     //thread(EXIT) >> IMPORTANT CALL
 '''
+#dummy variables
+thisIP = 'this_IP'
+thisVersion = 2
+
+dict1 = {'IP1': '1', 'IP2': '2'}
+def callOtherScripts(needUpdate, hasUpdate):
+    print("Inside the callOtherScript")
+
 
 #detect the trucks around and put them in a queue
 '''
@@ -43,6 +53,14 @@ for loop to go thr each dic object say "other_pi"
     }
 }
 '''
+queue = []
+for addr in dict1:
+    try:
+        #set up connection?
+        queue.append(addr)
+    except:
+        print()
+
 
 #create threads according to the number of queue
 '''
@@ -59,6 +77,33 @@ for loop for all the thread
 for loop to wait for all the threads to be done
 
 '''
+
+def worker(arg):
+    if arg is None:
+        return
+    print('\nthread worker function')
+    if(thisVersion > para.version())
+        callOtherScripts(para, thisIP)
+    else if(thisVersion < para.version())
+        callOtherScripts(thisIP, para)
+    return
+
+
+threads = []
+for i in range(5):
+    para = None
+    try:    
+        para = queue.remove()
+    except:
+        print()
+    t = threading.Thread(target=worker, args =(para,))
+    threads.append(t)
+    t.start()
+
+for t in threads:
+    threads[t].join()
+
+
 #download done MESSAGE
 print("FINISHED DOWNLOAD")
 
