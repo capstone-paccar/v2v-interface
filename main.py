@@ -1,1 +1,52 @@
+'''
+Project: Vehicle to Vehicle Update System (Capstone)
+Capstone Team: Aashima Mehta, Cameron Ufland and Austin Gilbert
+Last Date of Modification: 04/30/2021
+---------------------------------------------------------------------------------------
+OUTLINE: THIS IS THE MAIN_SCRIPT/TRUCK_MANAGER_SCRIPT THAT WILL CALL ALL OTHER SCRIPTS
+THIS PROGRAM ALSO USES THREADING ~ Threads are only used here in the program!!!
+
+1) detect all trucks around
+2) create threads
+    i) call functions in thread according to the version number of truck
+    ii) call other threads for other trucks
+    iii) assemble all the threads
+3) DONE!!!!  ~ print message
+
+'''
+
+#create the dictionary function and callOtherScripts function 
+#also can add more functions if needed here
+'''
+dict --> Manually create the dictionary for all the IP addresses mapped to the versions
+callOtherScripts(needUpdate, hasUpdate) --> takes two parameters of IP's of pis
+    //call the server and client scripts according to the update need
+    //create locks in the server/cleint scripts 
+    //after the call the update should be done!
+    //thread(EXIT) >> IMPORTANT CALL
+'''
+
+#detect the trucks around and put them in a queue
+'''
+create a for loop that will go thr the dictionary and the code will try to form a connection with it?
+if the connection was successful then we will put the IP address into a queue
+'''
+
+#create threads according to the number of queue
+'''
+at this point we know what trucks are around the pi that we are searching for 
+therefore create the thread //say 12 is the len of queue
+thread[12]
+also add locks in the download section of the other files
+for loop for all the thread
+    if(version of this_truck > other_truck)
+        run thread callOtherScripts(other_truck, this_truck) 
+    else
+        run thread callOtherScripts(this_truck, other,truck)
+
+for loop to wait for all the threads to be done
+
+'''
+#download done MESSAGE
+print("FINISHED DOWNLOAD")
 
