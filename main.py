@@ -29,7 +29,19 @@ callOtherScripts(needUpdate, hasUpdate) --> takes two parameters of IP's of pis
 #detect the trucks around and put them in a queue
 '''
 create a for loop that will go thr the dictionary and the code will try to form a connection with it?
-if the connection was successful then we will put the IP address into a queue
+if the connection was successful then we will put the IP address into a queue/array
+
+The way we could do it ---> "ALSO MAKE SURE TO PUT IN A TRY 
+for loop to go thr each dic object say "other_pi"
+    try{
+        set up a connection with the other_pi
+        send a message and wait 2 sec before checking the recieved msg
+        the other_pi must return with a msg and if we recieve that msg then this pi is around! 
+            therefore put this other_pi in the queue/array
+    }catch{ 
+        if not received a msg then move on
+    }
+}
 '''
 
 #create threads according to the number of queue
