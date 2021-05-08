@@ -10,23 +10,15 @@ class Broadcast:
     nodeDict = dict()
     BROADCAST_ADDRESS = '255.255.255.255'
     PORT = 15200
-    
+    bcsSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    bcsSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    bcsSock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    bcsSock_tx = bcsSock.dup()
+    bcsSock.bind(('', PORT))
     #Handles the receiving of broadcasts, it adds IP addresses to the dictionary
-    def rx_broadcast(self):
-        rx_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        rx_socket.bind(('', self.PORT))
-        rx_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        rx_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        while True:
-            data, addr = rx_socket.recvfrom(1024)
-            self.nodeDict.update({addr[0] : str(data.decode())})
-        rx_socket.close()
+    def rx_broadcast(self, version):   
+        data, addr = bcsSock.recvfrom(1024)
+        return (str(data.decode()), addr)
     #Handles the transmission. It loads the transmitting device's IP address into a dictionary and then broadcasts the version number to the network.
     def tx_broadcast(self, version):
-        tx_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        tx_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        tx_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.nodeDict.update({tx_socket.gethostbyname(tx_socket.gethostname()): version })
-        while True:
-            tx_socket.sendto(bytes(str(version), 'utf-8'), (self.BROADCAST_ADDRESS, self.PORT))
-        tx_socket.close()
+          bcsSock_tx.sendto(bytes(str(version), 'utf-8'), (self.BROADCAST_ADDRESS, self.PORT))
