@@ -1,8 +1,8 @@
 
 import socket
-"""This class is designed to operate via threading so that transmitting and receiving can occur at the same time. 
-    it has a dictionary to store broadcasted messages that are received along with their version numbers. it uses
-    sockets to send broadcast messages to all devices on the mesh network"""
+
+'''it has a dictionary to store broadcasted messages that are received along with their version numbers. it uses
+    sockets to send broadcast messages to all devices on the mesh network'''
 # For educational purposes only. This class was made for the Spring 2021 CE/EE Capstone course at  U of WA, Bothell
 #Created by Cameron in collaboration with Aashima Mehta, and Austin Gilbert
 
