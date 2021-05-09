@@ -3,6 +3,7 @@ import pi
 import broadcast
 
 #======================================================================
+#simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
     version  = 1 #need to set this up to read it from the file
