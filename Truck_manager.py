@@ -1,11 +1,34 @@
-import socket
+import socket as socket
 import pi
-from broadcast import broadcast
+import broadcast
 
-
+#======================================================================
+#simulate the scripts to run atleast 3 times if failing!
+#======================================================================
 def main():
-    
+    version  = 1 #need to set this up to read it from the file
+    this_pi = Pi(version, 
+                 socket.gethostbyname(socket.gethostname()))
+    bdct = Broadcast(version)
 
+    while True:
+        bdct.tx_broadcast()
+        ver, addr = bdct.rx_broadcast()
+        if addr == this_pi.getIP() | addr == "":
+            continue
+        else:
+            if ver == this_pi.getVersion() | ver == None :
+                continue
+            else:
+                if ver > this_pi.getVersion():
+                    callOtherScripts(Pi(ver, addr),
+                                     this_pi)
+                elif ver < this_pi.getVersion():
+                    callOtherScripts(this_pi, 
+                                     Pi(ver, addr))
+#======================================================================
+
+#======================================================================
 def callOtherScripts(hasUpdate, needUpdate):
     times = 0 
     print("Inside the callOtherScript")
@@ -19,7 +42,9 @@ def callOtherScripts(hasUpdate, needUpdate):
             times = times + 1
     return
 
+#======================================================================
 #runServer will run the server.py script on pi --> code in "server.py"
+#======================================================================
 def runServer(needUpdate):
     print("Running server " + needUpdate.getIP())
     print("Server Version : ", needUpdate.getVersion())
@@ -51,8 +76,9 @@ def runServer(needUpdate):
             return True
     except:
         return False
-
+#======================================================================
 #runClient will run the client.py script on pi --> code in "client.py"
+#======================================================================
 def runClient(hasUpdate):
     print("Running client " + hasUpdate.getIP())
     print("Client Version : ", hasUpdate.getVersion())
