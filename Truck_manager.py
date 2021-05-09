@@ -2,7 +2,7 @@ import socket
 import pi
 import broadcast
 
-PORT = 5001
+PORT = 15200
 SIZE = 1024
 FORMAT = "utf-8"
 
@@ -18,10 +18,10 @@ def main():
     while True:
         bdct.tx_broadcast()
         ver, addr = bdct.rx_broadcast()
-        if addr == this_pi.getIP() | addr == "":
+        if addr == this_pi.getIP() or addr == "":
             continue
         else:
-            if ver == this_pi.getVersion() | ver == None :
+            if ver == None or ver == this_pi.getVersion():
                 continue
             else:
                 if ver > this_pi.getVersion():
@@ -61,24 +61,22 @@ def runServer(needUpdate):
         server.listen(1)
         print("[LISTENING] Server is listening.")
 
-        while True:
-            conn, connaddr = server.accept()
-            print("[NEW CONNECTION] {} connected.".format(connaddr))
-            filename = conn.recv(SIZE).decode(FORMAT)
-            print("[RECV] Receiving the filename.")
-            file = open(filename, "w")
-            conn.send("Filename received.".encode(FORMAT))
+        conn, connaddr = server.accept()
+        print("[NEW CONNECTION] {} connected.".format(connaddr))
+        filename = conn.recv(SIZE).decode(FORMAT)
+        print("[RECV] Receiving the filename.")
+        file = open(filename, "w")
+        conn.send("Filename received.".encode(FORMAT))
 
-            data = conn.recv(SIZE).decode(FORMAT)
-            print("[RECV] Receiving the file data.")
-            file.write(data)
-            conn.send("File data received".encode(FORMAT))
+        data = conn.recv(SIZE).decode(FORMAT)
+        print("[RECV] Receiving the file data.")
+        file.write(data)
+        conn.send("File data received".encode(FORMAT))
 
-            file.close()
-
-            conn.close()
-            print("[DISCONNECTED] {} disconnected.".format(connaddr))
-            return True
+        file.close()
+        conn.close()
+        print("[DISCONNECTED] {} disconnected.".format(connaddr))
+        return True
     except:
         return False
 
