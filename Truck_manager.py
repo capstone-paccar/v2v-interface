@@ -1,15 +1,19 @@
-import socket as socket
+import socket
 import pi
 import broadcast
+
+PORT = 5001
+SIZE = 1024
+FORMAT = "utf-8"
 
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
     version  = 1 #need to set this up to read it from the file
-    this_pi = Pi(version, 
+    this_pi = pi.Pi(version, 
                  socket.gethostbyname(socket.gethostname()))
-    bdct = Broadcast(version)
+    bdct = broadcast.Broadcast(version)
 
     while True:
         bdct.tx_broadcast()
@@ -21,14 +25,15 @@ def main():
                 continue
             else:
                 if ver > this_pi.getVersion():
-                    callOtherScripts(Pi(ver, addr),
+                    callOtherScripts(pi.Pi(ver, addr),
                                      this_pi)
                 elif ver < this_pi.getVersion():
                     callOtherScripts(this_pi, 
-                                     Pi(ver, addr))
-#======================================================================
+                                     pi.Pi(ver, addr))
 
-#======================================================================
+#============================================================================
+#callOtherScripts will run sender and reciever scripts according to version
+#============================================================================
 def callOtherScripts(hasUpdate, needUpdate):
     times = 0 
     print("Inside the callOtherScript")
@@ -76,6 +81,7 @@ def runServer(needUpdate):
             return True
     except:
         return False
+
 #======================================================================
 #runClient will run the client.py script on pi --> code in "client.py"
 #======================================================================
@@ -92,7 +98,7 @@ def runClient(hasUpdate):
         data = file.read()
 
         client.send("transfer.txt".encode(FORMAT))
-        msg = client.recv(SIZE).decode(FORMAT) #decode = 'utf-8' try!
+        msg = client.recv(SIZE).decode(FORMAT) 
         print("[SERVER]: {}".format(msg))
 
         client.send(data.encode(FORMAT))
