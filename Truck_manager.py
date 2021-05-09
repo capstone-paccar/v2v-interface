@@ -61,24 +61,22 @@ def runServer(needUpdate):
         server.listen(1)
         print("[LISTENING] Server is listening.")
 
-        while True:
-            conn, connaddr = server.accept()
-            print("[NEW CONNECTION] {} connected.".format(connaddr))
-            filename = conn.recv(SIZE).decode(FORMAT)
-            print("[RECV] Receiving the filename.")
-            file = open(filename, "w")
-            conn.send("Filename received.".encode(FORMAT))
+        conn, connaddr = server.accept()
+        print("[NEW CONNECTION] {} connected.".format(connaddr))
+        filename = conn.recv(SIZE).decode(FORMAT)
+        print("[RECV] Receiving the filename.")
+        file = open(filename, "w")
+        conn.send("Filename received.".encode(FORMAT))
 
-            data = conn.recv(SIZE).decode(FORMAT)
-            print("[RECV] Receiving the file data.")
-            file.write(data)
-            conn.send("File data received".encode(FORMAT))
+        data = conn.recv(SIZE).decode(FORMAT)
+        print("[RECV] Receiving the file data.")
+        file.write(data)
+        conn.send("File data received".encode(FORMAT))
 
-            file.close()
-
-            conn.close()
-            print("[DISCONNECTED] {} disconnected.".format(connaddr))
-            return True
+        file.close()
+        conn.close()
+        print("[DISCONNECTED] {} disconnected.".format(connaddr))
+        return True
     except:
         return False
 
