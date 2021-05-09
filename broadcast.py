@@ -7,21 +7,15 @@ import socket
 #Created by Cameron in collaboration with Aashima Mehta, and Austin Gilbert
 
 class Broadcast:
-    BROADCAST_ADDRESS = ''
-    PORT = 15200
-    version = 0
-
-    def _init_(self, version, port = 15200, broadcast_addr = '255.255.255.255'):
+    def __init__(self, version, port = 15200, broadcast_addr = '255.255.255.255'):
         self.BROADCAST_ADDRESS = broadcast_addr
         self.PORT = port
         self.version = version
-
-    #set up transmission socket
+        #set up transmission socket
         self.tx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.tx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.tx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
-    #set up broadcast receive socket
+        #set up broadcast receive socket
         self.rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.rx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)

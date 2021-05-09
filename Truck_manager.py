@@ -1,6 +1,8 @@
 import socket
 import pi
 import broadcast
+import threading
+import time
 
 PORT = 15200
 SIZE = 1024
@@ -9,52 +11,68 @@ FORMAT = "utf-8"
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
-def main():
+def runProgram():
+    print("We are in Main")
     version  = 1 #need to set this up to read it from the file
     this_pi = pi.Pi(version, 
                  socket.gethostbyname(socket.gethostname()))
-    bdct = broadcast.Broadcast(version)
+    bdct = broadcast.Broadcast(version, 15200, '255.255.255.255')
 
     while True:
+        print("Inside the main loop")
         bdct.tx_broadcast()
         ver, addr = bdct.rx_broadcast()
-        if addr == this_pi.getIP() or addr == "":
+        ver = int(ver)
+        print(ver)
+        print(addr)
+        if addr[0] == None or addr[0] == this_pi.getIP():
+            print("in addr continue")
             continue
         else:
             if ver == None or ver == this_pi.getVersion():
+                print("in version continue")
                 continue
             else:
                 if ver > this_pi.getVersion():
+                    print("Our pi has lesser ver --> run server")
                     callOtherScripts(pi.Pi(ver, addr),
-                                     this_pi)
+                                     this_pi, True)
                 elif ver < this_pi.getVersion():
+                    print("Our pi has greater version --> run client")
                     callOtherScripts(this_pi, 
-                                     pi.Pi(ver, addr))
+                                     pi.Pi(ver, addr), False)
+        print("Done with transfer")
 
 #============================================================================
 #callOtherScripts will run sender and reciever scripts according to version
+# hasUpdate - contains the info of which pi has the update
+# needUpdate - contains the info of which pi needs the update
+# Boolean weNeedUpdate - tells if it is our pi that needs the update
 #============================================================================
-def callOtherScripts(hasUpdate, needUpdate):
+def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
     times = 0 
     print("Inside the callOtherScript")
     while(times < 3):
-        if(runServer(hasUpdate) and runClient(needUpdate)):
-            #update the Version of the Client
-            needUpdate.setVersion(hasUpdate.getVersion())
-            print("Client Version : ", needUpdate.getVersion())
-            break
+        if weNeedUpdate:
+            if(runServer(hasUpdate)):
+                #update the Version of the Client
+                needUpdate.setVersion(hasUpdate.getVersion())
+                print("Client Version : " + str(needUpdate.getVersion()))
+                break
         else:
-            times = times + 1
+            if(runClient(needUpdate)):
+                break
+        times = times + 1
     return
 
 #======================================================================
 #runServer will run the server.py script on pi --> code in "server.py"
 #======================================================================
 def runServer(needUpdate):
-    print("Running server " + needUpdate.getIP())
-    print("Server Version : ", needUpdate.getVersion())
+    print("Running server " + str(needUpdate.getIP()))
+    print("Server Version : " + str(needUpdate.getVersion()))
     try:
-        serverAddr = (needUpdate.getIP(), PORT)
+        serverAddr = ('0.0.0.0', PORT)
         print("[STARTING] Server is starting.")
         server = socket.socket() #(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(serverAddr)
@@ -84,8 +102,8 @@ def runServer(needUpdate):
 #runClient will run the client.py script on pi --> code in "client.py"
 #======================================================================
 def runClient(hasUpdate):
-    print("Running client " + hasUpdate.getIP())
-    print("Client Version : ", hasUpdate.getVersion())
+    print("Running client " + str(hasUpdate.getIP()))
+    print("Client Version : " + str(hasUpdate.getVersion()))
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
         client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
@@ -109,3 +127,20 @@ def runClient(hasUpdate):
         return True
     except:
         return False
+
+def broadcastTheIP(version):
+    while True:
+        print("BROAD")
+        time.sleep(2)
+        bdct = broadcast.Broadcast(version, 15200, '255.255.255.255')
+        bdct.tx_broadcast()
+
+def main():
+    x = threading.Thread(target=broadcastTheIP, args=(1,))
+    x.start()
+    y = threading.Thread(target=runProgram, args=())
+    y.start()
+    x.join()
+    y.join()
+
+main()
