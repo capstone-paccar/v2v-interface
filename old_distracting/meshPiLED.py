@@ -5,7 +5,7 @@ USE THE PROGRAM FOR BINKING-LED and just share it with the other pi
 import py2p, time
 print("\nProgram starts here")
 sock = py2p.MeshSocket('0.0.0.0', 4444)
-sock.connect('10.0.0.1', 4567)
+sock.connect('10.0.0.201', 4567)
 time.sleep(1)
 assert sock.routing_table
 
