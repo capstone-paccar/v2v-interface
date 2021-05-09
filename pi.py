@@ -7,8 +7,8 @@ SIZE = 1024
 FORMAT = "utf-8"
 
 class Pi:
-    version = 0
-    addr = ''
+    self.version = 0
+    self.addr = ''
 
     #constructor
     def __init__(self, version, addr):
