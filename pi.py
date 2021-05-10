@@ -7,8 +7,8 @@ SIZE = 1024
 FORMAT = "utf-8"
 
 class Pi:
-    self.version = 0
-    self.addr = ''
+    version = 0
+    addr = ''
 
     #constructor
     def __init__(self, version, addr):
@@ -29,4 +29,4 @@ class Pi:
     def setIP(self, incomingAddr):
         self.addr = incomingAddr
 
-#stimulate the scripts to run atleast 3 times if failing!
+
