@@ -1,86 +1,72 @@
 import socket
 import pi
 import broadcast
-import threading
 import time
 
-PORT = 15200
-SIZE = 1024
+
+NS_TO_MIL = 10**6
+TIME_INTERVAL =  2500 * NS_TO_MIL
+PORT = 15201
+SIZE =  1024
 FORMAT = "utf-8"
 
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
-def runProgram():
-    print("We are in Main")
-    version  = 1 #need to set this up to read it from the file
+def main():
+
+     #need to set this up to read it from the file
     this_pi = pi.Pi(version, 
-                 socket.gethostbyname(socket.gethostname()))
-    bdct = broadcast.Broadcast(version, 15200, '255.255.255.255')
+                    socket.gethostbyname(socket.gethostname()))    
 
     while True:
-        print("Inside the main loop")
+        bdct = broadcast.Broadcast(this_pi.getVersion())
         bdct.tx_broadcast()
-        ver, addr = bdct.rx_broadcast()
-        ver = int(ver)
-        print(ver)
-        print(addr)
-        if addr[0] == None or addr[0] == this_pi.getIP():
-            print("in addr continue")
-            continue
-        else:
-            if ver == None or ver == this_pi.getVersion():
-                print("in version continue")
+        oldTime  = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
+        while (time.clock_gettime_ns(time.CLOCK_BOOTTIME) - oldTime) < TIME_INTERVAL :
+            ver, addr = bdct.rx_broadcast()
+            ver = int(ver)
+            if addr[0] == this_pi.getIP() or addr[0] == "":
                 continue
             else:
-                if ver > this_pi.getVersion():
-                    print("Our pi has lesser ver --> run server")
-                    callOtherScripts(pi.Pi(ver, addr),
-                                     this_pi, True)
-                elif ver < this_pi.getVersion():
-                    print("Our pi has greater version --> run client")
-                    callOtherScripts(this_pi, 
-                                     pi.Pi(ver, addr), False)
-        print("Done with transfer")
+                if ver == int(this_pi.getVersion()) or ver == None :
+                    continue
+                else:
+                    if ver > int(this_pi.getVersion()):
+                        callOtherScripts(pi.Pi(ver, addr[0]),
+                                        this_pi, True)
+                    elif ver < this_pi.getVersion():
+                        callOtherScripts(this_pi, 
+                                        pi.Pi(ver, addr[0]), False)
+                    break
 
-#============================================================================
-#callOtherScripts will run sender and reciever scripts according to version
-# hasUpdate - contains the info of which pi has the update
-# needUpdate - contains the info of which pi needs the update
-# Boolean weNeedUpdate - tells if it is our pi that needs the update
-#============================================================================
+#======================================================================
+#simulate the scripts to run atleast 3 times if failing!
+#======================================================================
 def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
-    times = 0 
-    print("Inside the callOtherScript")
-    while(times < 1):
-        if weNeedUpdate:
-            if(runServer(hasUpdate)):
-                #update the Version of the Client assuming update is done by this line!
-                needUpdate.setVersion(hasUpdate.getVersion())
-                print("Client Updated Version : " + str(needUpdate.getVersion()))
-                break
-        else:
-            if(runClient(needUpdate)):
-                break
-        times = times + 1
-        print("TIMES = " + str(times))
+    if weNeedUpdate:
+        if(runServer(hasUpdate)):
+            #update the Version of the Client assuming update is done by this line!
+            needUpdate.setVersion(hasUpdate.getVersion())
+    else:
+        runClient(needUpdate)
     return
 
 #======================================================================
 #runServer will run the server.py script on pi --> code in "server.py"
 #======================================================================
 def runServer(needUpdate):
-    print("Running server " + str(needUpdate.getIP()))
-    print("Server Version : " + str(needUpdate.getVersion()))
+    print("Running server " + needUpdate.getIP())
+    print("Server Version : ", needUpdate.getVersion())
     try:
         serverAddr = ('0.0.0.0', PORT)
         print("[STARTING] Server is starting.")
         server = socket.socket()
         server.bind(serverAddr)
-        server.listen(5)
+        server.listen(1)
         print("[LISTENING] Server is listening.")
 
-        server.settimeout(5)
+        server.settimeout(10) #10 second timer
         conn, connaddr = server.accept()
         print("[NEW CONNECTION] {} connected.".format(connaddr))
         filename = conn.recv(SIZE).decode(FORMAT)
@@ -104,14 +90,15 @@ def runServer(needUpdate):
 #runClient will run the client.py script on pi --> code in "client.py"
 #======================================================================
 def runClient(hasUpdate):
-    print("Running client " + str(hasUpdate.getIP()))
-    print("Client Version : " + str(hasUpdate.getVersion()))
+    print("Running client " + hasUpdate.getIP())
+    print("Client Version : ", hasUpdate.getVersion())
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
-        client = socket.socket() 
-        client.settimeout(5)
+        client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
+        client.settimeout(10) #10 second timer
 
         client.connect(clientAddr)
+
         file = open("transfer.txt", "r")
         data = file.read()
 
@@ -129,21 +116,3 @@ def runClient(hasUpdate):
         return True
     except:
         return False
-
-def broadcastTheIP(version):
-    while True:
-        print("BROAD") #temp variable for checking proper 
-        time.sleep(2)
-        bdct = broadcast.Broadcast(version, 15200, '255.255.255.255')
-        bdct.tx_broadcast()
-
-def main():
-    x = threading.Thread(target=broadcastTheIP, args=(1,))
-    x.start()
-    y = threading.Thread(target=runProgram, args=())
-    y.start()
-    x.join()
-    y.join()
-
-#main()
-runProgram()
