@@ -1,48 +1,57 @@
 import socket
 import pi
 import broadcast
+import time
 
-PORT = 15200
-SIZE = 1024
+
+NS_TO MIL = 10**6
+TIME_INTERVAL =  2500 * NS_TO_MIL
+PORT = 15201
+SIZE =  1024
 FORMAT = "utf-8"
 
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
-    version  = 1 #need to set this up to read it from the file
+
+     #need to set this up to read it from the file
     this_pi = pi.Pi(version, 
-                 socket.gethostbyname(socket.gethostname()))
-    bdct = broadcast.Broadcast(version)
+                    socket.gethostbyname(socket.gethostname()))    
+
 
     while True:
+        bdct = broadcast.Broadcast(this_pi.getVersion())
         bdct.tx_broadcast()
-        ver, addr = bdct.rx_broadcast()
-        if addr == this_pi.getIP() or addr == "":
-            continue
-        else:
-            if ver == None or ver == this_pi.getVersion():
+        oldTime  = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
+        while (time.clock_gettime_ns(time.CLOCK_BOOTTIME) - oldTime) < TIME_INTERVAL :
+            ver, addr = bdct.rx_broadcast()
+            ver = int(ver)
+            if addr[0] == this_pi.getIP() or addr[0] == "":
                 continue
             else:
-                if ver > this_pi.getVersion():
-                    callOtherScripts(pi.Pi(ver, addr),
-                                     this_pi)
-                elif ver < this_pi.getVersion():
-                    callOtherScripts(this_pi, 
-                                     pi.Pi(ver, addr))
-
-#============================================================================
-#callOtherScripts will run sender and reciever scripts according to version
-#============================================================================
+                if ver == int(this_pi.getVersion()) or ver == None :
+                    continue
+                else:
+                    if ver > int(this_pi.getVersion()):
+                        callOtherScripts(pi.Pi(ver, addr[0]),
+                                        this_pi)
+                    elif ver < this_pi.getVersion():
+                        callOtherScripts(this_pi, 
+                                        pi.Pi(ver, addr[0]))
+                    break
+#======================================================================
+#simulate the scripts to run atleast 3 times if failing!
+#======================================================================
 def callOtherScripts(hasUpdate, needUpdate):
     times = 0 
     print("Inside the callOtherScript")
     while(times < 3):
-        if(runServer(hasUpdate) and runClient(needUpdate)):
+        if(runServer(needUpdate) and runClient(hasUpdate)):
             #update the Version of the Client
             needUpdate.setVersion(hasUpdate.getVersion())
             print("Client Version : ", needUpdate.getVersion())
-            break
+            return
         else:
             times = times + 1
     return

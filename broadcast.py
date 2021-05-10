@@ -8,10 +8,9 @@ import socket
 
 class Broadcast:
     BROADCAST_ADDRESS = ''
-    PORT = 15200
+    PORT = 0
     version = 0
-
-    def _init_(self, version, port = 15200, broadcast_addr = '255.255.255.255'):
+    def __init__(self, version, port = 15200, broadcast_addr = '255.255.255.255'):
         self.BROADCAST_ADDRESS = broadcast_addr
         self.PORT = port
         self.version = version
@@ -32,10 +31,11 @@ class Broadcast:
         data, addr = self.rx_sock.recvfrom(1024)
         return (str(data.decode()), addr)
 
-    #Handles the transmission. It loads the transmitting device's IP address into a dictionary and then broadcasts the version number to the network.
+    #Handles the transmission. and then broadcasts the version number to the network.
+
     def tx_broadcast(self):
         self.tx_sock.sendto(bytes(str(self.version), 'utf-8'), (self.BROADCAST_ADDRESS, self.PORT))
-    
+
     def close_tx_sock(self):
         self.tx_sock.close()
     
