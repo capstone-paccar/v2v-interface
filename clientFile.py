@@ -9,24 +9,26 @@ FORMAT = "utf-8"
 SIZE = 1024
 
 def main():
-    client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        client = socket.socket()
+        client.settimeout(5)
+        client.connect(ADDR)
+        file = open("transfer.txt", "r")
+        data = file.read()
 
-    client.connect(ADDR)
+        client.send("transfer.txt".encode(FORMAT))
+        msg = client.recv(SIZE).decode(FORMAT) 
+        print("[SERVER]: {}".format(msg))
 
-    file = open("transfer.txt", "r")
-    data = file.read()
+        client.send(data.encode(FORMAT))
+        msg = client.recv(SIZE).decode(FORMAT)
+        print("[SERVER]: {}".format(msg))
 
-    client.send("transfer.txt".encode(FORMAT))
-    msg = client.recv(SIZE).decode(FORMAT) #decode = 'utf-8' try!
-    print("[SERVER]: {}".format(msg))
+        file.close()
 
-    client.send(data.encode(FORMAT))
-    msg = client.recv(SIZE).decode(FORMAT)
-    print("[SERVER]: {}".format(msg))
-
-    file.close()
-
-    client.close()
+        client.close()
+    except:
+        print("Client Timeout: Couldn't connect to the server")
 
 
 if __name__ == "__main__":

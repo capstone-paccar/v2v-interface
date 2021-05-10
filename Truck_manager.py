@@ -52,17 +52,18 @@ def runProgram():
 def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
     times = 0 
     print("Inside the callOtherScript")
-    while(times < 3):
+    while(times < 1):
         if weNeedUpdate:
             if(runServer(hasUpdate)):
-                #update the Version of the Client
+                #update the Version of the Client assuming update is done by this line!
                 needUpdate.setVersion(hasUpdate.getVersion())
-                print("Client Version : " + str(needUpdate.getVersion()))
+                print("Client Updated Version : " + str(needUpdate.getVersion()))
                 break
         else:
             if(runClient(needUpdate)):
                 break
         times = times + 1
+        print("TIMES = " + str(times))
     return
 
 #======================================================================
@@ -74,11 +75,12 @@ def runServer(needUpdate):
     try:
         serverAddr = ('0.0.0.0', PORT)
         print("[STARTING] Server is starting.")
-        server = socket.socket() #(socket.AF_INET, socket.SOCK_STREAM)
+        server = socket.socket()
         server.bind(serverAddr)
-        server.listen(1)
+        server.listen(5)
         print("[LISTENING] Server is listening.")
 
+        server.settimeout(5)
         conn, connaddr = server.accept()
         print("[NEW CONNECTION] {} connected.".format(connaddr))
         filename = conn.recv(SIZE).decode(FORMAT)
@@ -106,10 +108,10 @@ def runClient(hasUpdate):
     print("Client Version : " + str(hasUpdate.getVersion()))
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
-        client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
+        client = socket.socket() 
+        client.settimeout(5)
 
         client.connect(clientAddr)
-
         file = open("transfer.txt", "r")
         data = file.read()
 
@@ -130,7 +132,7 @@ def runClient(hasUpdate):
 
 def broadcastTheIP(version):
     while True:
-        print("BROAD")
+        print("BROAD") #temp variable for checking proper 
         time.sleep(2)
         bdct = broadcast.Broadcast(version, 15200, '255.255.255.255')
         bdct.tx_broadcast()
@@ -143,4 +145,5 @@ def main():
     x.join()
     y.join()
 
-main()
+#main()
+runProgram()
