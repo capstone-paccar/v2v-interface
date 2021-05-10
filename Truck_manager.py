@@ -22,11 +22,11 @@ def main():
                 if ver > this_pi.getVersion():
                     callOtherScripts(Pi(ver, addr),
                                      this_pi)
-                elif ver < this_pi.getVersion():
+                else ver < this_pi.getVersion():
                     callOtherScripts(this_pi, 
                                      Pi(ver, addr))
 #======================================================================
-
+#simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def callOtherScripts(hasUpdate, needUpdate):
     times = 0 
