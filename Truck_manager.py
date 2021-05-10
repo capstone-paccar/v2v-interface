@@ -20,7 +20,7 @@ def main():
         bdct = broadcast.Broadcast(this_pi.getVersion())
         bdct.tx_broadcast()
         oldTime  = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
-        while time.clock_gettime_ns(time.CLOCK_BOOTTIME) - oldTime < :
+        while (time.clock_gettime_ns(time.CLOCK_BOOTTIME) - oldTime) < TIME_INTERVAL :
             ver, addr = bdct.rx_broadcast()
             ver = int(ver)
             if addr[0] == this_pi.getIP() or addr[0] == "":
