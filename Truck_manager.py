@@ -1,20 +1,24 @@
-import socket as socket
+import socket
 import pi
 import broadcast
 import time
+
 
 NS_TO MIL = 10**6
 TIME_INTERVAL =  2500 * NS_TO_MIL
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
+
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
+
      #need to set this up to read it from the file
     this_pi = pi.Pi(version, 
                     socket.gethostbyname(socket.gethostname()))    
+
 
     while True:
         bdct = broadcast.Broadcast(this_pi.getVersion())
@@ -66,26 +70,25 @@ def runServer(needUpdate):
         server.listen(1)
         print("[LISTENING] Server is listening.")
 
-        while True:
-            conn, connaddr = server.accept()
-            print("[NEW CONNECTION] {} connected.".format(connaddr))
-            filename = conn.recv(SIZE).decode(FORMAT)
-            print("[RECV] Receiving the filename.")
-            file = open(filename, "w")
-            conn.send("Filename received.".encode(FORMAT))
+        conn, connaddr = server.accept()
+        print("[NEW CONNECTION] {} connected.".format(connaddr))
+        filename = conn.recv(SIZE).decode(FORMAT)
+        print("[RECV] Receiving the filename.")
+        file = open(filename, "w")
+        conn.send("Filename received.".encode(FORMAT))
 
-            data = conn.recv(SIZE).decode(FORMAT)
-            print("[RECV] Receiving the file data.")
-            file.write(data)
-            conn.send("File data received".encode(FORMAT))
+        data = conn.recv(SIZE).decode(FORMAT)
+        print("[RECV] Receiving the file data.")
+        file.write(data)
+        conn.send("File data received".encode(FORMAT))
 
-            file.close()
-
-            conn.close()
-            print("[DISCONNECTED] {} disconnected.".format(connaddr))
-            return True
+        file.close()
+        conn.close()
+        print("[DISCONNECTED] {} disconnected.".format(connaddr))
+        return True
     except:
         return False
+
 #======================================================================
 #runClient will run the client.py script on pi --> code in "client.py"
 #======================================================================
@@ -102,7 +105,7 @@ def runClient(hasUpdate):
         data = file.read()
 
         client.send("transfer.txt".encode(FORMAT))
-        msg = client.recv(SIZE).decode(FORMAT) #decode = 'utf-8' try!
+        msg = client.recv(SIZE).decode(FORMAT) 
         print("[SERVER]: {}".format(msg))
 
         client.send(data.encode(FORMAT))
