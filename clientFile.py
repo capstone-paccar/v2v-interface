@@ -2,7 +2,7 @@
 import socket
 
 #IP here is the IP address of the server
-IP = '10.0.0.116'#socket.gethostbyname(socket.gethostname())
+IP = '10.0.0.116' #socket.gethostbyname(socket.gethostname())
 PORT = 5001
 ADDR = (IP, PORT)
 FORMAT = "utf-8"

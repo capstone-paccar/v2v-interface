@@ -1,11 +1,3 @@
-import socket
-
-thisVersion = 1             #Version of the Pi that we are on
-thisAddr = '655.322.214'    #IP Address of the Pi we are on
-PORT = 15200                #global port
-SIZE = 1024
-FORMAT = "utf-8"
-
 class Pi:
     version = 0
     addr = ''
@@ -28,5 +20,3 @@ class Pi:
 
     def setIP(self, incomingAddr):
         self.addr = incomingAddr
-
-
