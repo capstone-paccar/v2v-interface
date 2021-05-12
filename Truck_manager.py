@@ -3,6 +3,7 @@ import pi
 import broadcast
 import time as time
 
+
 TIME_INTERVAL =  0.15
 PORT = 15201
 SIZE =  1024
@@ -16,7 +17,6 @@ def main():
      #need to set this up to read it from the file
     this_pi = pi.Pi(version, 
                     socket.gethostbyname(socket.gethostname()))    
-
 
     while True:
         bdct = broadcast.Broadcast(this_pi.getVersion())
@@ -33,25 +33,23 @@ def main():
                 else:
                     if ver > int(this_pi.getVersion()):
                         callOtherScripts(pi.Pi(ver, addr[0]),
-                                        this_pi)
+                                        this_pi, True)
                     elif ver < this_pi.getVersion():
                         callOtherScripts(this_pi, 
-                                        pi.Pi(ver, addr[0]))
+                                        pi.Pi(ver, addr[0]), False)
                     break
+
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
-def callOtherScripts(hasUpdate, needUpdate):
-    times = 0 
-    print("Inside the callOtherScript")
-    while(times < 3):
-        if(runServer(hasUpdate) and runClient(needUpdate)):
-            #update the Version of the Client
+
+def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
+    if weNeedUpdate:
+        if(runServer(hasUpdate)):
+            #update the Version of the Client assuming update is done by this line!
             needUpdate.setVersion(hasUpdate.getVersion())
-            print("Client Version : ", needUpdate.getVersion())
-            return
-        else:
-            times = times + 1
+    else:
+        runClient(needUpdate)
     return
 
 #======================================================================
@@ -61,13 +59,14 @@ def runServer(needUpdate):
     print("Running server " + needUpdate.getIP())
     print("Server Version : ", needUpdate.getVersion())
     try:
-        serverAddr = (needUpdate.getIP(), PORT)
+        serverAddr = ('0.0.0.0', PORT)
         print("[STARTING] Server is starting.")
-        server = socket.socket() #(socket.AF_INET, socket.SOCK_STREAM)
+        server = socket.socket()
         server.bind(serverAddr)
         server.listen(1)
         print("[LISTENING] Server is listening.")
 
+        server.settimeout(10) #10 second timer
         conn, connaddr = server.accept()
         print("[NEW CONNECTION] {} connected.".format(connaddr))
         filename = conn.recv(SIZE).decode(FORMAT)
@@ -96,6 +95,7 @@ def runClient(hasUpdate):
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
         client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
+        client.settimeout(10) #10 second timer
 
         client.connect(clientAddr)
 

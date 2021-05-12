@@ -14,7 +14,8 @@ def main():
     server.listen(5)
     print("[LISTENING] Server is listening.")
 
-    while True:
+    try:
+        server.settimeout(5)
         conn, addr = server.accept()
         print("[NEW CONNECTION] {} connected.".format(addr))
         filename = conn.recv(SIZE).decode(FORMAT)
@@ -31,6 +32,8 @@ def main():
 
         conn.close()
         print("[DISCONNECTED] {} disconnected.".format(addr))
+    except:
+        print("Server Timeout: Couldn't connect to client")
 
 if __name__ == "__main__":
     main()
