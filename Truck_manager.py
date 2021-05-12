@@ -1,15 +1,14 @@
 import socket
 import pi
 import broadcast
-import time
+import time as time
 
 
-NS_TO_MIL = 10**6
-TIME_INTERVAL =  2500 * NS_TO_MIL
+TIME_INTERVAL =  0.15
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
-
+version = 2  #needs to be read from file
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
@@ -22,8 +21,8 @@ def main():
     while True:
         bdct = broadcast.Broadcast(this_pi.getVersion())
         bdct.tx_broadcast()
-        oldTime  = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
-        while (time.clock_gettime_ns(time.CLOCK_BOOTTIME) - oldTime) < TIME_INTERVAL :
+        oldTime  = time.time()
+        while (time.time() - oldTime) < TIME_INTERVAL :
             ver, addr = bdct.rx_broadcast()
             ver = int(ver)
             if addr[0] == this_pi.getIP() or addr[0] == "":
@@ -43,6 +42,7 @@ def main():
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
+
 def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
     if weNeedUpdate:
         if(runServer(hasUpdate)):
