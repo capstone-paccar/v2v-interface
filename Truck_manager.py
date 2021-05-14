@@ -6,7 +6,7 @@ import time
 
 NS_TO_MIL = 10**6
 TIME_INTERVAL =  2500 * NS_TO_MIL
-PORT = 15201
+PORT = 15200
 SIZE =  1024
 FORMAT = "utf-8"
 
@@ -14,8 +14,9 @@ FORMAT = "utf-8"
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
-
-     #need to set this up to read it from the file
+    f = open("version.txt", "r")
+    version = int(f.read())
+    f.close()
     this_pi = pi.Pi(version, 
                     socket.gethostbyname(socket.gethostname()))    
 
@@ -84,6 +85,7 @@ def runServer(needUpdate):
         print("[DISCONNECTED] {} disconnected.".format(connaddr))
         return True
     except:
+        print("Timeout in server")
         return False
 
 #======================================================================
@@ -115,4 +117,5 @@ def runClient(hasUpdate):
         client.close()
         return True
     except:
+        print("Timeout in client")
         return False
