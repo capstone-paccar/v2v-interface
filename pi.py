@@ -16,6 +16,9 @@ class Pi:
 
     #setters
     def setVersion(self, incomingVersion):
+        f = open("version.txt", "w")
+        f.write(str(incomingVersion)) 
+        f.close()
         self.version = incomingVersion
 
     def setIP(self, incomingAddr):
