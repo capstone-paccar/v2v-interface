@@ -8,15 +8,14 @@ TIME_INTERVAL =  0.15
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
-version = 2  #needs to be read from file
+version = 5 #needs to be read from file
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
 
      #need to set this up to read it from the file
-    this_pi = pi.Pi(version, 
-                    socket.gethostbyname(socket.gethostname()))    
+    this_pi = pi.Pi(version, '')    
 
     while True:
         bdct = broadcast.Broadcast(this_pi.getVersion())
@@ -45,7 +44,7 @@ def main():
 
 def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
     if weNeedUpdate:
-        if(runServer(hasUpdate)):
+        if(runServer(needUpdate)):
             #update the Version of the Client assuming update is done by this line!
             needUpdate.setVersion(hasUpdate.getVersion())
     else:
@@ -59,7 +58,7 @@ def runServer(needUpdate):
     print("Running server " + needUpdate.getIP())
     print("Server Version : ", needUpdate.getVersion())
     try:
-        serverAddr = ('0.0.0.0', PORT)
+        serverAddr = (needUpdate.getIP(), PORT)
         print("[STARTING] Server is starting.")
         server = socket.socket()
         server.bind(serverAddr)
@@ -91,6 +90,7 @@ def runServer(needUpdate):
 #======================================================================
 def runClient(hasUpdate):
     print("Running client " + hasUpdate.getIP())
+    print("server at ", needUpdate.getIP())
     print("Client Version : ", hasUpdate.getVersion())
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
