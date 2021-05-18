@@ -1,4 +1,3 @@
-
 import socket
 import pi
 import broadcast
@@ -9,7 +8,7 @@ TIME_INTERVAL =  1.0
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
-version = 5 #needs to be read from file
+version = 2 #needs to be read from file
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
@@ -103,7 +102,7 @@ def runServer(needUpdate):
 #======================================================================
 def runClient(hasUpdate):
     print("Running client " + hasUpdate.getIP())
-    print("server at ", needUpdate.getIP())
+    print("server at ", hasUpdate.getIP())
     print("Client Version : ", hasUpdate.getVersion())
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
