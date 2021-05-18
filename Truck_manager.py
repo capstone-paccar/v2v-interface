@@ -13,10 +13,11 @@ version = 2 #needs to be read from file
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
-
-     #need to set this up to read it from the file
-
-    this_pi = pi.Pi(version, socket.gethostbyname(socket.gethostname() + '.local'))
+     #need to set this up to read it from the file 
+    f = open("version.txt", "r")
+    version = int(f.read())
+    f.close()
+    this_pi = pi.Pi(version, socket.gethostbyname(socket.gethostname() + '.local'))    
 
 
     while True:
@@ -27,7 +28,7 @@ def main():
         while (time.time()-oldTime) < TIME_INTERVAL :
             print(time.time())
             ver, addr = bdct.rx_broadcast()
-            print('fluff me')
+            print('post broadcast')
             ver = int(ver)
             if addr[0] ==  this_pi.getIP()or addr[0] == "":
                 print('in  equal address')
@@ -94,7 +95,7 @@ def runServer(needUpdate):
         print("[DISCONNECTED] {} disconnected.".format(connaddr))
         return True
     except:
-        print("oh no something died in the server")
+        print("Timeout in server")
         return False
 
 #======================================================================
@@ -127,5 +128,5 @@ def runClient(hasUpdate):
         client.close()
         return True
     except:
-        print("oh no something died in the client")
+        print("Timeout in client")
         return False
