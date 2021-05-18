@@ -4,38 +4,47 @@ import broadcast
 import time as time
 
 
-TIME_INTERVAL =  0.15
+TIME_INTERVAL =  1.0
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
-version = 2  #needs to be read from file
+version = 2 #needs to be read from file
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
+     #need to set this up to read it from the file 
     f = open("version.txt", "r")
     version = int(f.read())
     f.close()
-    this_pi = pi.Pi(version, 
-                    socket.gethostbyname(socket.gethostname()))    
+    this_pi = pi.Pi(version, socket.gethostbyname(socket.gethostname() + '.local'))    
+
 
     while True:
+        print(this_pi.getIP())
         bdct = broadcast.Broadcast(this_pi.getVersion())
         bdct.tx_broadcast()
         oldTime  = time.time()
-        while (time.time() - oldTime) < TIME_INTERVAL :
+        while (time.time()-oldTime) < TIME_INTERVAL :
+            print(time.time())
             ver, addr = bdct.rx_broadcast()
+            print('post broadcast')
             ver = int(ver)
-            if addr[0] == this_pi.getIP() or addr[0] == "":
+            if addr[0] ==  this_pi.getIP()or addr[0] == "":
+                print('in  equal address')
                 continue
             else:
-                if ver == int(this_pi.getVersion()) or ver == None :
+                if ver == int(this_pi.getVersion()) or ver == -1 :
+                    print(this_pi.getIP(), addr)
+                    print('in  equal version')
                     continue
                 else:
                     if ver > int(this_pi.getVersion()):
+                        print('in need update')
                         callOtherScripts(pi.Pi(ver, addr[0]),
                                         this_pi, True)
                     elif ver < this_pi.getVersion():
+                        print('in have update')
                         callOtherScripts(this_pi, 
                                         pi.Pi(ver, addr[0]), False)
                     break
@@ -46,11 +55,11 @@ def main():
 
 def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
     if weNeedUpdate:
-        if(runServer(hasUpdate)):
+        if(runServer(needUpdate)):
             #update the Version of the Client assuming update is done by this line!
             needUpdate.setVersion(hasUpdate.getVersion())
     else:
-        runClient(needUpdate)
+        runClient(hasUpdate)
     return
 
 #======================================================================
@@ -60,12 +69,13 @@ def runServer(needUpdate):
     print("Running server " + needUpdate.getIP())
     print("Server Version : ", needUpdate.getVersion())
     try:
-        serverAddr = ('0.0.0.0', PORT)
+
+        serverAddr = (needUpdate.getIP(), PORT)
         print("[STARTING] Server is starting.")
         server = socket.socket()
         server.bind(serverAddr)
         server.listen(1)
-        print("[LISTENING] Server is listening.")
+        print("[LISTENING] Server is listening on IP")
 
         server.settimeout(10) #10 second timer
         conn, connaddr = server.accept()
@@ -93,6 +103,7 @@ def runServer(needUpdate):
 #======================================================================
 def runClient(hasUpdate):
     print("Running client " + hasUpdate.getIP())
+    print("server at ", hasUpdate.getIP())
     print("Client Version : ", hasUpdate.getVersion())
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
