@@ -15,14 +15,12 @@ version = 0 #needs to be read from file
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
-
      #need to set this up to read it from the file
     print("in Main")
     f = open("version.txt", "r")
     version = int(f.read())
     f.close()
     this_pi = pi.Pi(version, get_IP_from_sys())
-
 
     while True:
         print('this Pi:', this_pi.getIP())
@@ -33,7 +31,7 @@ def main():
         while (time.time()-oldTime) < TIME_INTERVAL :
             print(time.time())
             ver, addr = bdct.rx_broadcast()
-            print('after broadcast')
+            print('post broadcast')
             ver = int(ver)
             print('remote Pi:', addr[0])
             print('remote Pi version:', ver)
@@ -102,7 +100,7 @@ def runServer(needUpdate):
         print("[DISCONNECTED] {} disconnected.".format(connaddr))
         return True
     except:
-        print("oh no something died in the server")
+        print("Timeout in server")
         return False
 
 #======================================================================
@@ -135,7 +133,7 @@ def runClient(hasUpdate):
         client.close()
         return True
     except:
-        print("oh no something died in the client")
+        print("Timeout in client")
         return False
 #======================================================================
 #rget_IP_from_sys will retrieve the IP from the system
