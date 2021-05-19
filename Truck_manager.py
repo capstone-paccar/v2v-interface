@@ -1,6 +1,8 @@
 import socket
 import pi
 import broadcast
+import os
+import subprocess
 import time as time
 
 
@@ -8,27 +10,33 @@ TIME_INTERVAL =  1.0
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
-version = 2 #needs to be read from file
+version = 0 #needs to be read from file
 #======================================================================
 #simulate the scripts to run atleast 3 times if failing!
 #======================================================================
 def main():
 
      #need to set this up to read it from the file
-
-    this_pi = pi.Pi(version, socket.gethostbyname(socket.gethostname() + '.local'))
+    print("in Main")
+    f = open("version.txt", "r")
+    version = int(f.read())
+    f.close()
+    this_pi = pi.Pi(version, get_IP_from_sys())
 
 
     while True:
-        print(this_pi.getIP())
+        print('this Pi:', this_pi.getIP())
+        print('this Pi version:', this_pi.getVersion() )
         bdct = broadcast.Broadcast(this_pi.getVersion())
         bdct.tx_broadcast()
         oldTime  = time.time()
         while (time.time()-oldTime) < TIME_INTERVAL :
             print(time.time())
             ver, addr = bdct.rx_broadcast()
-            print('fluff me')
+            print('after broadcast')
             ver = int(ver)
+            print('remote Pi:', addr[0])
+            print('remote Pi version:', ver)
             if addr[0] ==  this_pi.getIP()or addr[0] == "":
                 print('in  equal address')
                 continue
@@ -40,8 +48,8 @@ def main():
                 else:
                     if ver > int(this_pi.getVersion()):
                         print('in need update')
-                        callOtherScripts(pi.Pi(ver, addr[0]),
-                                        this_pi, True)
+                        callOtherScripts(this_pi, 
+                                        pi.Pi(ver, addr[0]), True)
                     elif ver < this_pi.getVersion():
                         print('in have update')
                         callOtherScripts(this_pi, 
@@ -49,16 +57,16 @@ def main():
                     break
 
 #======================================================================
-#simulate the scripts to run atleast 3 times if failing!
+#helper function to keep the code nice and clean
 #======================================================================
 
-def callOtherScripts(hasUpdate, needUpdate, weNeedUpdate):
-    if weNeedUpdate:
-        if(runServer(needUpdate)):
+def callOtherScripts(local_Pi, remote_Pi, local_need_update):
+    if local_need_update:
+        if(runServer(local_Pi)):
             #update the Version of the Client assuming update is done by this line!
-            needUpdate.setVersion(hasUpdate.getVersion())
+            local_pi.setVersion(remote_Pi.getVersion())
     else:
-        runClient(hasUpdate)
+        runClient(remote_Pi)
     return
 
 #======================================================================
@@ -129,3 +137,11 @@ def runClient(hasUpdate):
     except:
         print("oh no something died in the client")
         return False
+#======================================================================
+#rget_IP_from_sys will retrieve the IP from the system
+#======================================================================
+def get_IP_from_sys():
+    batcmd = 'hostname -I'
+    get_IP = str(subprocess.check_output(batcmd, shell = True))
+    get_IP = get_IP[0:len(get_IP)-2]
+    return get_IP
