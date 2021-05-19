@@ -62,7 +62,7 @@ def callOtherScripts(local_Pi, remote_Pi, local_need_update):
     if local_need_update:
         if(runServer(local_Pi)):
             #update the Version of the Client assuming update is done by this line!
-            local_pi.setVersion(remote_Pi.getVersion())
+            local_Pi.setVersion(remote_Pi.getVersion())
     else:
         runClient(remote_Pi)
     return
@@ -87,7 +87,7 @@ def runServer(needUpdate):
         print("[NEW CONNECTION] {} connected.".format(connaddr))
         filename = conn.recv(SIZE).decode(FORMAT)
         print("[RECV] Receiving the filename.")
-        file = open(filename, "w")
+        file = open(filename, 'w')
         conn.send("Filename received.".encode(FORMAT))
 
         data = conn.recv(SIZE).decode(FORMAT)
@@ -114,13 +114,13 @@ def runClient(hasUpdate):
         clientAddr = (hasUpdate.getIP(), PORT)
         client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
         client.settimeout(10) #10 second timer
-
+        print('about to connect')
         client.connect(clientAddr)
-
-        file = open("transfer.txt", "r")
+        print('succesful connect')
+        file = open('version.txt', 'r')
         data = file.read()
 
-        client.send("transfer.txt".encode(FORMAT))
+        client.send('version.txt'.encode(FORMAT))
         msg = client.recv(SIZE).decode(FORMAT) 
         print("[SERVER]: {}".format(msg))
 
