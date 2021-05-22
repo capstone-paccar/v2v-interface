@@ -143,3 +143,5 @@ def get_IP_from_sys():
     get_IP = str(subprocess.check_output(batcmd, shell = True))
     get_IP = get_IP[0:len(get_IP)-2]
     return get_IP
+
+main()
