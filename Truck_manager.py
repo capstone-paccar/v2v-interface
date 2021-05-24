@@ -82,14 +82,20 @@ def runServer(needUpdate):
         server.listen(1)
         print("[LISTENING] Server is listening on IP")
 
-        server.settimeout(1) #1 second timer
+        server.settimeout(2) #1 second timer
         conn, connaddr = server.accept()
         print("[NEW CONNECTION] {} connected.".format(connaddr))
         
         #recieve the size of the file
-        msg = conn.recv(8)
-        msg = int(msg)
-        time.sleep(.10) #dummy sleep call to wait before receiveing file
+        size = conn.recv(4) #assuming size wont be greater than 1GB
+        print("this is the size " + str(size, "utf-8"))
+        try: 
+            size = int(size) #actual value of the file_size
+        except:
+            size = 100 #dummy value
+        print(size) #-----------------------------PRINTING SIZE AGAIN TO CHECK THE STR TO INT CONVERSION
+
+        time.sleep(.10) #dummy sleep call to wait before receiveing file information
 
         #recieve file info
         filename = conn.recv(SIZE).decode(FORMAT)
@@ -120,15 +126,16 @@ def runClient(hasUpdate):
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
         client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(1) #1 second timer
+        client.settimeout(2) #1 second timer
         print('about to connect')
         client.connect(clientAddr)
         print('succesful connect')
 
         #send the size of the file in bytes
-        file_size = os.path.getsize('version.txt')
-        client.send(file_size)
+        file_size = str(os.path.getsize('version.txt')) + ''
+        client.send(file_size.encode(FORMAT))
         time.sleep(.10) #dummy sleep for program to proceed in server
+        print("done sending file size")
 
         #send file
         file = open('version.txt', 'r')
