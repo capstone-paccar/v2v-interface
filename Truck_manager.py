@@ -3,7 +3,7 @@ import pi
 import broadcast
 import os
 import subprocess
-import time as time
+import time
 
 
 TIME_INTERVAL =  1.0
@@ -82,9 +82,16 @@ def runServer(needUpdate):
         server.listen(1)
         print("[LISTENING] Server is listening on IP")
 
-        server.settimeout(10) #10 second timer
+        server.settimeout(1) #1 second timer
         conn, connaddr = server.accept()
         print("[NEW CONNECTION] {} connected.".format(connaddr))
+        
+        #recieve the size of the file
+        msg = conn.recv(8)
+        msg = int(msg)
+        time.sleep(.10) #dummy sleep call to wait before receiveing file
+
+        #recieve file info
         filename = conn.recv(SIZE).decode(FORMAT)
         print("[RECV] Receiving the filename.")
         file = open(filename, 'w')
@@ -113,10 +120,17 @@ def runClient(hasUpdate):
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
         client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(10) #10 second timer
+        client.settimeout(1) #1 second timer
         print('about to connect')
         client.connect(clientAddr)
         print('succesful connect')
+
+        #send the size of the file in bytes
+        file_size = os.path.getsize('version.txt')
+        client.send(file_size)
+        time.sleep(.10) #dummy sleep for program to proceed in server
+
+        #send file
         file = open('version.txt', 'r')
         data = file.read()
 
