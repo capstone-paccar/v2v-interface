@@ -112,7 +112,7 @@ def runServer(needUpdate):
         server.bind(serverAddr)
         server.listen(1) # Listens for remote IP
 
-        server.settimeout(1) # Starts 1 second timer
+        server.settimeout(0.5) # Starts 1 second timer
         conn, connaddr = server.accept()
         print("Connection Successful!")
         filename = conn.recv(SIZE).decode(FORMAT) # Recieves filename
@@ -156,16 +156,14 @@ def runClient(hasUpdate):
         clientAddr = (hasUpdate.getIP(), PORT)
         print("Establishing Connection...")
         client = socket.socket() # Starts client
-        client.settimeout(1) # Starts 1 second timer
+        client.settimeout(0.5) # Starts 1 second timer
         client.connect(clientAddr)
         print("Connection Successful!")
         client.send('update.txt'.encode(FORMAT))
         msg = client.recv(SIZE).decode(FORMAT) 
         print("[SERVER]: {}".format(msg))
-        with open('update.txt', 'rb') as file:
-            client.sendfile('update.txt', 0)      
-        msg = client.recv(SIZE).decode(FORMAT)
-        print("[SERVER]: {}".format(msg))
+        with open('update.txt', 'rb') as update:
+            client.sendfile(update, 0)      
         client.close()
         return True
     except:
