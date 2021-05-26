@@ -16,7 +16,6 @@ import os
 import pi
 import broadcast
 import subprocess
-import time as time
 import time
 
 TIME_INTERVAL =  1.0
