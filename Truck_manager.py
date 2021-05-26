@@ -162,8 +162,10 @@ def runClient(hasUpdate):
         client.send('update.txt'.encode(FORMAT))
         msg = client.recv(SIZE).decode(FORMAT) 
         print("[SERVER]: {}".format(msg))
+
         with open('update.txt', 'rb') as update:
             client.sendfile(update, 0)      
+
         client.close()
         return True
     except:
