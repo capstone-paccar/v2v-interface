@@ -1,145 +1,182 @@
+"""Truck Manager
+
+This script enables a Raspberry Pi 4 to send files via Ad-Hoc to another Pi
+running the same program.
+
+This tool relies on 'version.txt' and 'transfer.txt' text files to log version
+information and the file to transfer. Additionally, the tool uses the 'Broadcast'
+and 'Pi' objects to better organize the program.
+
+This script requires that 'batman-adv' be installed on the Pi you are running
+this program on.
+"""
+
 import socket
 import pi
 import broadcast
-import os
 import subprocess
 import time as time
-
+import time
 
 TIME_INTERVAL =  1.0
 PORT = 15201
 SIZE =  1024
 FORMAT = "utf-8"
-version = 0 #needs to be read from file
-#======================================================================
-#simulate the scripts to run atleast 3 times if failing!
-#======================================================================
-def main():
-     #need to set this up to read it from the file
-    print("in Main")
-    f = open("version.txt", "r")
-    version = int(f.read())
-    f.close()
-    this_pi = pi.Pi(version, get_IP_from_sys())
+MESSAGE = ""
+PROGRESS = 0
 
+def main():
+    """Broadcasts the Pi's version number to other Pi's and sets up a server or
+    client depending on the version number recieved from other Pis.
+    """
+    
+    # Reads version number of this Pi
+    print("Starting...")
+    f = open("update.txt", "r")
+    version = int(f.readline())
+    f.close()
+    this_Pi = pi.Pi(version, get_IP_from_sys())
+
+    # Loops until Pi is found 
     while True:
-        print('this Pi:', this_pi.getIP())
-        print('this Pi version:', this_pi.getVersion() )
-        bdct = broadcast.Broadcast(this_pi.getVersion())
-        bdct.tx_broadcast()
+        # TODO: if 'Cancel' button pressed, exit while loop
+        bdct = broadcast.Broadcast(this_Pi.getVersion())
+        bdct.tx_broadcast() # broadcasts version number to network
         oldTime  = time.time()
-        while (time.time()-oldTime) < TIME_INTERVAL :
-            print(time.time())
-            ver, addr = bdct.rx_broadcast()
-            print('post broadcast')
+
+        # Retries each time interval
+        while (time.time()-oldTime) < TIME_INTERVAL:
+            print('Searching...')
+            ver, addr = bdct.rx_broadcast() # Recieves broadcasts on the network
             ver = int(ver)
-            print('remote Pi:', addr[0])
-            print('remote Pi version:', ver)
-            if addr[0] ==  this_pi.getIP()or addr[0] == "":
-                print('in  equal address')
-                continue
+
+            # If program recieves its own broadcast...
+            if addr[0] ==  this_Pi.getIP()or addr[0] == "": continue
             else:
-                if ver == int(this_pi.getVersion()) or ver == -1 :
-                    print(this_pi.getIP(), addr)
-                    print('in  equal version')
-                    continue
+                # If no broadcast found...
+                if ver == int(this_Pi.getVersion()) or ver == -1: continue
                 else:
-                    if ver > int(this_pi.getVersion()):
-                        print('in need update')
-                        callOtherScripts(this_pi, 
-                                        pi.Pi(ver, addr[0]), True)
-                    elif ver < this_pi.getVersion():
-                        print('in have update')
-                        callOtherScripts(this_pi, 
-                                        pi.Pi(ver, addr[0]), False)
+                    print('Truck Found!')
+                    if ver > int(this_Pi.getVersion()):
+                        print('Preparing for Update...')
+                        # Runs server on this Pi
+                        callOtherScripts(this_Pi, pi.Pi(ver, addr[0]), True)
+                    elif ver < this_Pi.getVersion():
+                        print('Preparing for Transfer...')
+                        # Runs client on this Pi
+                        callOtherScripts(this_Pi, pi.Pi(ver, addr[0]), False)
                     break
 
-#======================================================================
-#helper function to keep the code nice and clean
-#======================================================================
-
 def callOtherScripts(local_Pi, remote_Pi, local_need_update):
+    """Helper function to direct program to runServer or runClient and simplify
+    code.
+
+    Parameters
+    ----------
+    local_Pi : Pi
+        the Pi object to designate this Pi
+    remote_Pi : Pi
+        the Pi object to designate the remote Pi
+    local_need_update : bool
+        a boolean which determines the direction of file transfer
+    """
+    
     if local_need_update:
+        # Runs server on this Pi -> recieving update file
         if(runServer(local_Pi)):
-            #update the Version of the Client assuming update is done by this line!
+            # Updates this Pi's version if file is successfully transferred
             local_Pi.setVersion(remote_Pi.getVersion())
     else:
+        # Runs client on this Pi -> sending update file
         runClient(remote_Pi)
     return
 
-#======================================================================
-#runServer will run the server.py script on pi --> code in "server.py"
-#======================================================================
 def runServer(needUpdate):
-    print("Running server " + needUpdate.getIP())
-    print("Server Version : ", needUpdate.getVersion())
+    """Runs a TCP Server on this Pi, thereby recieving an update file.
+
+    Parameters
+    ----------
+    needUpdate : Pi
+        the Pi object to designate this Pi
+    
+    Returns
+    -------
+    bool
+        a boolean representing the success of the function
+    """
+    
     try:
-
         serverAddr = (needUpdate.getIP(), PORT)
-        print("[STARTING] Server is starting.")
-        server = socket.socket()
+        print("Establishing Connection...")
+        server = socket.socket() # Starts server
         server.bind(serverAddr)
-        server.listen(1)
-        print("[LISTENING] Server is listening on IP")
+        server.listen(1) # Listens for remote IP
 
-        server.settimeout(10) #10 second timer
+        server.settimeout(1) # Starts 1 second timer
         conn, connaddr = server.accept()
-        print("[NEW CONNECTION] {} connected.".format(connaddr))
-        filename = conn.recv(SIZE).decode(FORMAT)
-        print("[RECV] Receiving the filename.")
-        file = open(filename, 'w')
+        print("Connection Successful!")
+        filename = conn.recv(SIZE).decode(FORMAT) # Recieves filename
+        file = open(filename, 'wb')
         conn.send("Filename received.".encode(FORMAT))
 
-        data = conn.recv(SIZE).decode(FORMAT)
-        print("[RECV] Receiving the file data.")
+        #data = conn.recv(SIZE).decode(FORMAT) # Downloads
+        chunk = conn.recv(SIZE)
+        data = chunk
+        while chunk:
+            chunk = conn.recv(SIZE)
+            data = data + chunk
+        print("Downloading...")
         file.write(data)
-        conn.send("File data received".encode(FORMAT))
+        conn.send("File data received.".encode(FORMAT))
 
         file.close()
-        conn.close()
-        print("[DISCONNECTED] {} disconnected.".format(connaddr))
+        conn.close() # Disconnects
+        print("Update Downloaded Successfully!")
+        time.sleep(1) # waits one second to show message
         return True
     except:
-        print("Timeout in server")
+        print("Error: Timeout in server.")
         return False
 
-#======================================================================
-#runClient will run the client.py script on pi --> code in "client.py"
-#======================================================================
 def runClient(hasUpdate):
-    print("Running client " + hasUpdate.getIP())
-    print("server at ", hasUpdate.getIP())
-    print("Client Version : ", hasUpdate.getVersion())
+    """Runs a TCP Client on this Pi, thereby sending an update file.
+
+    Parameters
+    ----------
+    hasUpdate : Pi
+        the Pi object to designate the remote Pi
+    
+    Returns
+    -------
+    bool
+        a boolean representing the success of the function
+    """
+
     try:
         clientAddr = (hasUpdate.getIP(), PORT)
-        client = socket.socket() #socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(10) #10 second timer
-        print('about to connect')
+        print("Establishing Connection...")
+        client = socket.socket() # Starts client
+        client.settimeout(1) # Starts 1 second timer
         client.connect(clientAddr)
-        print('succesful connect')
-        file = open('version.txt', 'r')
-        data = file.read()
-
-        client.send('version.txt'.encode(FORMAT))
+        print("Connection Successful!")
+        client.send('update.txt'.encode(FORMAT))
         msg = client.recv(SIZE).decode(FORMAT) 
         print("[SERVER]: {}".format(msg))
-
-        client.send(data.encode(FORMAT))
+        with open('update.txt', 'rb') as file:
+            client.sendfile('update.txt', 0)      
         msg = client.recv(SIZE).decode(FORMAT)
         print("[SERVER]: {}".format(msg))
-
-        file.close()
-
         client.close()
         return True
     except:
-        print("Timeout in client")
+        print("Error: Timeout in client.")
         return False
 #======================================================================
 #rget_IP_from_sys will retrieve the IP from the system
 #======================================================================
 def get_IP_from_sys():
     batcmd = 'hostname -I'
-    get_IP = str(subprocess.check_output(batcmd, shell = True))
-    get_IP = get_IP[0:len(get_IP)-2]
-    return get_IP
+    get_IP = subprocess.check_output(batcmd, shell = True).strip()
+    return get_IP.decode("utf-8")
+
+main()

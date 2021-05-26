@@ -2,6 +2,8 @@
 # For educational purposes only. This class was made for the Spring 2021 CE/EE Capstone course at  U of WA, Bothell
 #Created by Cameron in collaboration with Aashima Mehta, and Austin Gilbert
 import socket
+
+FORMAT = "utf-8"
 class Broadcast:
     BROADCAST_ADDRESS = ''
     PORT = 0
@@ -32,7 +34,7 @@ class Broadcast:
     #Handles the transmission. and then broadcasts the version number to the network.
 
     def tx_broadcast(self):
-        self.tx_sock.sendto(str(self.version), (self.BROADCAST_ADDRESS, self.PORT))
+        self.tx_sock.sendto(bytes(str(self.version), FORMAT), (self.BROADCAST_ADDRESS, self.PORT))
 
     def close_tx_sock(self):
         self.tx_sock.close()
