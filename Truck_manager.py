@@ -114,16 +114,7 @@ def runServer(needUpdate):
 
             server.settimeout(10) # Starts 1 second timer
             conn, connaddr = server.accept()
-            print("Connection Successful!")
-            #recieve the size of the file	
-            size = conn.recv(4) #assuming size wont be greater than 1GB	
-            print("this is the size " + str(size, "utf-8"))	
-            try: 	
-                size = int(size) #actual value of the file_size	
-            except:	
-                size = 1024 #dummy value	
-            print(size) #--PRINTING SIZE AGAIN TO CHECK THE STR TO INT CONVERSION	
-            time.sleep(.10) #dummy sleep call to wait before receiveing file information	
+            print("Connection Successful!")		
             with conn:
                 filename = conn.recv(SIZE).decode(FORMAT) # Recieves filename
                 conn.send("Filename received.".encode(FORMAT))
@@ -166,11 +157,6 @@ def runClient(hasUpdate):
             client.settimeout(10) # Starts 1 second timer
             client.connect(clientAddr)
             print("Connection Successful!")
-            #send the size of the file in bytes	
-            file_size = str(os.path.getsize('update.txt')) + ''	
-            client.send(file_size.encode(FORMAT))	
-            time.sleep(.10) #dummy sleep for program to proceed in server	
-            print("Done sending file-size")
             client.send('update.txt'.encode(FORMAT))
             msg = client.recv(SIZE).decode(FORMAT) 
             print("[SERVER]: {}".format(msg))
