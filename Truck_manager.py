@@ -19,8 +19,8 @@ import time as time
 import time
 
 TIME_INTERVAL =  1.0
-PORT = 15201
-SIZE =  1024
+PORT = 1750
+SIZE =  1024 * 4
 FORMAT = "utf-8"
 MESSAGE = ""
 PROGRESS = 0
@@ -32,10 +32,10 @@ def main():
     
     # Reads version number of this Pi
     print("Starting...")
-    f = open("version.txt", "r")
-    version = int(f.read())
-    f.close()
+    with open('update.txt', 'r') as f:
+        version = int(f.readline())
     this_Pi = pi.Pi(version, get_IP_from_sys())
+    print(this_Pi.getIP())
 
     # Loops until Pi is found 
     while True:
@@ -49,7 +49,6 @@ def main():
             print('Searching...')
             ver, addr = bdct.rx_broadcast() # Recieves broadcasts on the network
             ver = int(ver)
-
             # If program recieves its own broadcast...
             if addr[0] ==  this_Pi.getIP()or addr[0] == "": continue
             else:
@@ -108,27 +107,31 @@ def runServer(needUpdate):
     try:
         serverAddr = (needUpdate.getIP(), PORT)
         print("Establishing Connection...")
-        server = socket.socket() # Starts server
-        server.bind(serverAddr)
-        server.listen(1) # Listens for remote IP
 
-        server.settimeout(1) # Starts 1 second timer
-        conn, connaddr = server.accept()
-        print("Connection Successful!")
-        filename = conn.recv(SIZE).decode(FORMAT) # Recieves filename
-        file = open(filename, 'w')
-        conn.send("Filename received.".encode(FORMAT))
+        with socket.socket() as server: # Starts server
+            server.bind(serverAddr)
+            server.listen(1) # Listens for remote IP
 
-        data = conn.recv(SIZE).decode(FORMAT) # Downloads
-        print("Downloading...")
-        file.write(data)
-        conn.send("File data received.".encode(FORMAT))
+            server.settimeout(10) # Starts 1 second timer
+            conn, connaddr = server.accept()
+            print("Connection Successful!")
+            with conn:
+                filename = conn.recv(SIZE).decode(FORMAT) # Recieves filename
+                conn.send("Filename received.".encode(FORMAT))
 
-        file.close()
-        conn.close() # Disconnects
-        print("Update Downloaded Successfully!")
-        time.sleep(1) # waits one second to show message
-        return True
+                #data = conn.recv(SIZE).decode(FORMAT) # Downloads
+                chunk = conn.recv(SIZE)
+                data = chunk
+                while chunk:
+                    chunk = conn.recv(SIZE)
+                    data = data + chunk
+                print("Downloading...")
+                with open(filename, 'wb') as update:
+                    update.write(data)
+                conn.send("File data received.".encode(FORMAT))
+                print("Update Downloaded Successfully!")
+                time.sleep(1) # waits one second to show message
+                return True
     except:
         print("Error: Timeout in server.")
         return False
@@ -147,28 +150,20 @@ def runClient(hasUpdate):
         a boolean representing the success of the function
     """
 
-    try:
+    try:  
         clientAddr = (hasUpdate.getIP(), PORT)
         print("Establishing Connection...")
-        client = socket.socket() # Starts client
-        client.settimeout(1) # Starts 1 second timer
-        client.connect(clientAddr)
-        print("Connection Successful!")
-        file = open('version.txt', 'r')
-        data = file.read()
-
-        client.send('version.txt'.encode(FORMAT))
-        msg = client.recv(SIZE).decode(FORMAT) 
-        print("[SERVER]: {}".format(msg))
-
-        client.send(data.encode(FORMAT))
-        msg = client.recv(SIZE).decode(FORMAT)
-        print("[SERVER]: {}".format(msg))
-
-        file.close()
-
-        client.close()
-        return True
+        with socket.socket() as client: # Starts client
+            client.settimeout(10) # Starts 1 second timer
+            client.connect(clientAddr)
+            print("Connection Successful!")
+            client.send('update.txt'.encode(FORMAT))
+            msg = client.recv(SIZE).decode(FORMAT) 
+            print("[SERVER]: {}".format(msg))
+            with open('update.txt', 'rb') as update:
+                client.sendfile(update, 0)  
+            client.close()
+            return True
     except:
         print("Error: Timeout in client.")
         return False
@@ -181,3 +176,4 @@ def get_IP_from_sys():
     return get_IP.decode("utf-8")
 
 main()
+
