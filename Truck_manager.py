@@ -36,6 +36,7 @@ def main():
         version = int(f.readline())
     this_Pi = pi.Pi(version, get_IP_from_sys())
     print(this_Pi.getIP())
+
     # Loops until Pi is found 
     while True:
         # TODO: if 'Cancel' button pressed, exit while loop
@@ -48,7 +49,6 @@ def main():
             print('Searching...')
             ver, addr = bdct.rx_broadcast() # Recieves broadcasts on the network
             ver = int(ver)
-            print(addr[0])
             # If program recieves its own broadcast...
             if addr[0] ==  this_Pi.getIP()or addr[0] == "": continue
             else:
@@ -107,6 +107,7 @@ def runServer(needUpdate):
     try:
         serverAddr = (needUpdate.getIP(), PORT)
         print("Establishing Connection...")
+
         with socket.socket() as server: # Starts server
             server.bind(serverAddr)
             server.listen(1) # Listens for remote IP
@@ -175,3 +176,4 @@ def get_IP_from_sys():
     return get_IP.decode("utf-8")
 
 main()
+
