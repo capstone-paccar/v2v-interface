@@ -169,12 +169,14 @@ def runClient(hasUpdate):
             client.settimeout(10) # Starts 1 second timer
             client.connect(clientAddr)
             print("Connection Successful!")
+
             # send the size of the file in bytes	
-            # file_size = str(os.path.getsize('update.txt')) + ''	
-            # client.send(bytes(file_size,FORMAT))	
-            # time.sleep(.01) #dummy sleep for program to proceed in server	
-            # print("Done sending file-size")
+            file_size = str(os.path.getsize('update.txt')) + ''	
+            client.send(bytes(file_size,FORMAT))	
+            time.sleep(.01) #dummy sleep for program to proceed in server	
+            print("Done sending file-size")
             # send file name
+
             client.send('update.txt'.encode(FORMAT))
             msg = client.recv(SIZE).decode(FORMAT) 
             print("[SERVER]: {}".format(msg))
