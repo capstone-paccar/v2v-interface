@@ -17,12 +17,14 @@ import broadcast
 import subprocess
 import time as time
 import time
+import os
 
 TIME_INTERVAL =  1.0
-PORT = 1750
+PORT = 1400
 SIZE =  1024 * 4
 FORMAT = "utf-8"
 MESSAGE = ""
+file_size = 100
 PROGRESS = 0
 
 def main():
@@ -32,11 +34,11 @@ def main():
     
     # Reads version number of this Pi
     print("Starting...")
+    file_size = str(os.path.getsize('update.txt')) + ''
     with open('update.txt', 'r') as f:
         version = int(f.readline())
     this_Pi = pi.Pi(version, get_IP_from_sys())
     print(this_Pi.getIP())
-
     # Loops until Pi is found 
     while True:
         # TODO: if 'Cancel' button pressed, exit while loop
@@ -105,38 +107,39 @@ def runServer(needUpdate):
     """
     
     try:
+        
         serverAddr = (needUpdate.getIP(), PORT)
         print("Establishing Connection...")
 
         with socket.socket() as server: # Starts server
             server.bind(serverAddr)
-            server.listen(1) # Listens for remote IP
+            server.listen(1)      # Listens for remote IP
 
             server.settimeout(10) # Starts 1 second timer
             conn, connaddr = server.accept()
             print("Connection Successful!")
-            #recieve the size of the file	
-            size = conn.recv(4) #assuming size wont be greater than 1GB	
+            # recieve the size of the file	
+            size = conn.recv(4)   # assuming size wont be greater than 1GB	
             print("this is the size " + str(size, "utf-8"))	
             try: 	
-                size = int(size) #actual value of the file_size	
+                size = int(size)  # actual value of the file_size	
             except:	
-                size = 1024 #dummy value	
-            print(size) #--PRINTING SIZE AGAIN TO CHECK THE STR TO INT CONVERSION	
-            time.sleep(.10) #dummy sleep call to wait before receiveing file information	
+                size = 1024       # dummy value	
+            print(size)           # PRINTING SIZE AGAIN TO CHECK THE STR TO INT CONVERSION	
+            time.sleep(.10)       # dummy sleep call to wait before receiveing file information	
+            
             with conn:
                 filename = conn.recv(SIZE).decode(FORMAT) # Recieves filename
                 conn.send("Filename received.".encode(FORMAT))
-
-                #data = conn.recv(SIZE).decode(FORMAT) # Downloads
                 chunk = conn.recv(SIZE)
                 data = chunk
                 while chunk:
                     chunk = conn.recv(SIZE)
                     data = data + chunk
                 print("Downloading...")
-                with open(filename, 'wb') as update:
-                    update.write(data)
+                update = open(filename, 'wb') 
+                print('open the file')
+                update.write(data)
                 conn.send("File data received.".encode(FORMAT))
                 print("Update Downloaded Successfully!")
                 time.sleep(1) # waits one second to show message
@@ -166,17 +169,18 @@ def runClient(hasUpdate):
             client.settimeout(10) # Starts 1 second timer
             client.connect(clientAddr)
             print("Connection Successful!")
-            #send the size of the file in bytes	
-            file_size = str(os.path.getsize('update.txt')) + ''	
-            client.send(file_size.encode(FORMAT))	
-            time.sleep(.10) #dummy sleep for program to proceed in server	
-            print("Done sending file-size")
+            # send the size of the file in bytes	
+            # file_size = str(os.path.getsize('update.txt')) + ''	
+            # client.send(bytes(file_size,FORMAT))	
+            # time.sleep(.01) #dummy sleep for program to proceed in server	
+            # print("Done sending file-size")
+            # send file name
             client.send('update.txt'.encode(FORMAT))
             msg = client.recv(SIZE).decode(FORMAT) 
             print("[SERVER]: {}".format(msg))
+            # send file
             with open('update.txt', 'rb') as update:
                 client.sendfile(update, 0)  
-            client.close()
             return True
     except:
         print("Error: Timeout in client.")
