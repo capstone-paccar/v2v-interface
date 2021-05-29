@@ -1,25 +1,54 @@
+"""Pi
+
+This class designs a Pi object to store and set a version number and IP addresses.
+
+Notes
+-------------------------------------------------------------------------------
+Created by Austin Gilbert, Aashima Mehta, and Cameron Ufland for the University
+of Washington, Bothell in affiliation with PACCAR Inc.
+"""
+
 class Pi:
+    """The class used to represent a Pi.
+
+    Attributes
+    ----------
+    version : int
+        the version number of the Pi
+    address : str
+        the IP address of the Pi
+
+    Methods
+    -------
+    getVersion()
+        the getter for the Pi's version number
+    getIP()
+        the getter for the Pi's IP address
+    setVersion()
+        the setter for the Pi's version number
+    setIP()
+        the setter for the Pi's IP address
+    """
+    
     version = 0
-    addr = ''
+    address = ''
 
-    #constructor
-    def __init__(self, version, addr):
+    def __init__(self, version, address):
         self.version = version
-        self.addr = addr
+        self.address = address
 
-    #getters
     def getVersion(self):
+        """The getter for the Pi's version number."""
         return self.version
 
     def getIP(self):
-        return self.addr
+        """The getter for the Pi's IP address."""
+        return self.address
 
-    #setters
     def setVersion(self, incomingVersion):
-        f = open("version.txt", "w")
-        f.write(str(incomingVersion)) 
-        f.close()
+        """The setter for the Pi's version number."""
         self.version = incomingVersion
 
-    def setIP(self, incomingAddr):
-        self.addr = incomingAddr
+    def setIP(self, incomingaddress):
+        """The setter for the Pi's IP address."""
+        self.address = incomingaddress
