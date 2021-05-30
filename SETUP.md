@@ -16,7 +16,8 @@ Instead of using a wall-to-usbc adapter, you may want to use a high mAh capacity
 We will configure **batman-adv** such that it takes over the WiFi interface **wlan0** and sets up a tandem WiFi interface **bat0**. This enables the Pi to send network sockets over the wlan0 antenna while using IP addresses set by bat0 and deploys a mesh network.
 
 1. Install **batctl**
-batctl is a control tool for batman-adv. To install, use the command:
+
+    batctl is a control tool for batman-adv. To install, use the command:
     ```bash
     sudo apt-get install batctl
     ```
@@ -32,7 +33,8 @@ batctl is a control tool for batman-adv. To install, use the command:
         ```
 
 2. Create **start-batman-adv**
-start-batman-adv will serve as an executable that runs the necessary commands to start the mesh network. Use the following commands to create and edit the executable:
+    
+    start-batman-adv will serve as an executable that runs the necessary commands to start the mesh network. Use the following commands to create and edit the executable:
     ```bash
     cd ~ && touch start-batman-adv.sh && chmod +x start-batman-adv.sh
     sudo nano start-batman-adv.sh
@@ -53,7 +55,8 @@ start-batman-adv will serve as an executable that runs the necessary commands to
     ```
 
 3. Configure Interfaces **wlan0** and **bat0**
-First ensure that the interfaces are set up correctly by opening the interfaces file using the following command:
+
+    First ensure that the interfaces are set up correctly by opening the interfaces file using the following command:
     ```bash
     sudo nano /etc/network/interfaces
     ```
@@ -91,7 +94,8 @@ First ensure that the interfaces are set up correctly by opening the interfaces 
     ```
 
 4. Enabling **Automatic Run-on-Startup**
-Running the following commands will enable the Pi to start deploying a mesh network on boot:
+
+    Running the following commands will enable the Pi to start deploying a mesh network on boot:
     ```bash
     # Starts batman-adv at boot
     echo 'batman-adv' | sudo tee --append /etc/modules
@@ -104,13 +108,15 @@ Running the following commands will enable the Pi to start deploying a mesh netw
     ```
 
 5. **Reboot**
-Reboot with the following command to put all changes into effect:
+
+    Reboot with the following command to put all changes into effect:
     ```bash
     sudo reboot
     ```
 
 6. **Test** for a Functioning Mesh Network
-Test by running the following two commands:
+
+    Test by running the following two commands:
     ```bash
     sudo batctl if
     sudo batctl n
