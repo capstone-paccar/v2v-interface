@@ -278,6 +278,10 @@ class PiPhoneTransfer(QDialog):
         loadUi("piphonetransfer.ui",self)
 
 def getSystemIP():
+    """ Collects the IP address using hostname bash command. 
+        This function assumes that bat0 is the only wireless interface utilized
+        Future Work: finding a more robust means of collecting the Mesh IP address
+    """
         batcmd = 'hostname -I'
         get_IP = subprocess.check_output(batcmd, shell = True).strip()
         return get_IP.decode("utf-8")
