@@ -10,6 +10,10 @@ of Washington, Bothell in affiliation with PACCAR Inc.
 """
 
 import sys, time
+import socket
+import pi
+import broadcast
+import subprocess
 import logging
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
@@ -47,7 +51,7 @@ class MainWorker(QThread):
     
     status = pyqtSignal(str)
     progress = pyqtSignal(int)
-    version = pyqtSignal(int)
+    version = pyqtSignal(str)
     finished = pyqtSignal()
 
     def __init__(self):
@@ -56,17 +60,59 @@ class MainWorker(QThread):
 
     def run(self):
         """Runs the Pi-Pi management program and emits all signals."""
-        # TODO: Insert program here
-        i = 0
-        while(self.running):
-            time.sleep(1)
-            i += 1
-            self.status.emit(f"{i}")
-        self.finished.emit()
+        self.status.emit('Starting...')
+        # Reads version number of this Pi
+        with open('update.txt', 'r') as file:
+            version = int(file.readline())
+        self.version.emit(f'{version}')
+        this_Pi = pi.Pi(version, getSystemIP())
+        time.sleep(1)
 
-    def stop(self):
+        # Loops until Pi is found
+        while(self.running):
+            # TODO: if 'Cancel' button pressed, exit while loop
+
+            bdct = broadcast.Broadcast(this_Pi.getVersion())
+            bdct.txBroadcast() # broadcasts version number to network
+            oldTime = time.time()
+
+            # Retries each time interval
+            while (time.time()-oldTime) < 1.0:
+                self.status.emit('Searching...')
+                ver, addr = bdct.rxBroadcast() # Recieves broadcasts on the network
+                ver = int(ver)
+                # If program recieves its own broadcast...
+                if addr[0] ==  this_Pi.getIP()or addr[0] == "": continue
+                else:
+                    # If no broadcast found...
+                    if ver == int(this_Pi.getVersion()) or ver == -1: continue
+                    else:
+                        self.status.emit('Truck Found!')
+                        time.sleep(1)
+                        if ver > int(this_Pi.getVersion()):
+                            self.status.emit('Preparing for Update...')
+                            self.progress.emit(10)
+                            time.sleep(1)
+                            # Runs server on this Pi
+                            #callOtherScripts(this_Pi, pi.Pi(ver, addr[0]), True)
+                        elif ver < this_Pi.getVersion():
+                            self.status.emit('Preparing for Transfer...')
+                            self.progress.emit(10)
+                            time.sleep(1)
+                            # Runs client on this Pi
+                            #callOtherScripts(this_Pi, pi.Pi(ver, addr[0]), False)
+                        break
+    
+    
+    def stop(self, restart):
         """Stops the thread by setting boolean "running" to false"""
+        self.status.emit('Ending Broadcast...')
+        time.sleep(1)
+        if restart:
+            self.status.emit('Restarting...')
+            time.sleep(1)
         self.running = False
+        self.finished.emit()
 
 class SignalWorker(QThread):
     """The secondary worker thread used to run subprocess terminal commands and
@@ -101,12 +147,11 @@ class SignalWorker(QThread):
 
     def run(self):
         """Runs the subprocess program and emits all signals."""
-        i = 100
         while(True):
-            time.sleep(1)
-            i += 1
-            self.signalStrength.emit(f"{i}")
-            self.signalQuality.emit(f"{i}")
+            batcmd = 'sudo iwlist wlan0 scan | egrep -C 2 "my-mesh-network"'
+            getSignal = str(subprocess.check_output(batcmd, shell = True))
+            self.signalStrength.emit("{} dBm".format(int(getSignal[50:53])))
+            self.signalQuality.emit("{:.0%}".format(float(getSignal[30:32])/70.0))
 
 class PiPiTransfer(QDialog):
     """The class used to design a window with signals and slots for the Pi-Pi
@@ -133,7 +178,7 @@ class PiPiTransfer(QDialog):
     writeVersionNum(label)
         writes the version number to the GUI
     """
-    
+
     def __init__(self):
         super(PiPiTransfer, self).__init__()
         loadUi("pipitransfer.ui",self) #editor must only open "Pi GUI Folder"
@@ -141,12 +186,13 @@ class PiPiTransfer(QDialog):
         self.cancelButton.clicked.connect(self.cancelled)
         self.runProgram()
         self.collectSignal()
-
+        
     def runProgram(self):
         """Manages main worker thread and its signals."""
         self.worker = MainWorker()
         self.finished.connect(self.worker.deleteLater)
         self.worker.status.connect(self.writeStatus)
+        self.worker.version.connect(self.writeVersionNum)
         self.worker.start()
 
     def collectSignal(self):
@@ -162,14 +208,14 @@ class PiPiTransfer(QDialog):
             Is called when the technician mode button is pressed.
         """
         widget.setCurrentIndex(widget.currentIndex()+1)
-        self.worker.stop()
+        self.worker.stop(restart = False)
 
     def cancelled(self):
         """Restarts all Threads.
             Is called when the cancel button is pressed.
         """
-        # TODO: Add cancel functionality
-        return
+        self.worker.stop(restart = True)
+        self.runProgram()
 
     def writeStatus(self, label):
         """Writes the status to the GUI.
@@ -230,6 +276,11 @@ class PiPhoneTransfer(QDialog):
     def __init__(self):
         super(PiPhoneTransfer, self).__init__()
         loadUi("piphonetransfer.ui",self)
+
+def getSystemIP():
+        batcmd = 'hostname -I'
+        get_IP = subprocess.check_output(batcmd, shell = True).strip()
+        return get_IP.decode("utf-8")
 
 """The following must be run in both gui.py and main.py:"""
 # Creates application screen
