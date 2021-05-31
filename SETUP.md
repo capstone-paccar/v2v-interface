@@ -21,7 +21,7 @@ We will configure **batman-adv** such that it takes over the WiFi interface **wl
     ```bash
     sudo apt-get install batctl
     ```
-    * If the batctl present in the Raspberry Pi repository is out of date, run this command to install the "latest version":
+    * If the batctl present in the Raspberry Pi repository is out of date, run this command to install the "latest version" (as of June 1, 2021:
         ```bash
         sudo apt purge batctl -y &&  \
         sudo apt install libnl-genl-3-dev libnl-3-dev -y && \
