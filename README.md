@@ -24,7 +24,7 @@ python3 main.py
 See [SETUP.md](SETUP.md) for setting up Raspberry Pi for automatic run-on-startup.
 
 ## License
-TODO: Give the project a license.
+[LICENSE.md](LICENSE.md)
 
 ## Authors and Acknowledgement
 Created by Austin Gilbert, Aashima Mehta, and Cameron Ufland for the *University of Washington, Bothell* in affiliation with *PACCAR Inc*.
