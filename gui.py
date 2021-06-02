@@ -60,6 +60,7 @@ class MainWorker(QThread):
 
     def run(self):
         """Runs the Pi-Pi management program and emits all signals."""
+        
         self.status.emit('Starting...')
         # Reads version number of this Pi
         with open('update.txt', 'r') as file:
@@ -79,8 +80,10 @@ class MainWorker(QThread):
             # Retries each time interval
             while (time.time()-oldTime) < 1.0:
                 self.status.emit('Searching...')
-                ver, addr = bdct.rxBroadcast() # Recieves broadcasts on the network
+                ver, addr = bdct.rxBroadcast() # Recieves broadcasts on the
+                                               # network
                 ver = int(ver)
+
                 # If program recieves its own broadcast...
                 if addr[0] ==  this_Pi.getIP()or addr[0] == "": continue
                 else:
@@ -89,20 +92,91 @@ class MainWorker(QThread):
                     else:
                         self.status.emit('Truck Found!')
                         time.sleep(1)
+                        
+                        # If this Pi has outdated version...
                         if ver > int(this_Pi.getVersion()):
                             self.status.emit('Preparing for Update...')
                             self.progress.emit(10)
                             time.sleep(1)
-                            # Runs server on this Pi
-                            #callOtherScripts(this_Pi, pi.Pi(ver, addr[0]), True)
+                            
+                            # If server runs on this Pi successfully...
+                            if (self.runServer(this_Pi)):
+                                this_Pi.setVersion(ver) # Updates this Pi's
+                                                        # version number
+                        
+                        # If this Pi has an up-to-date version...
                         elif ver < this_Pi.getVersion():
                             self.status.emit('Preparing for Transfer...')
                             self.progress.emit(10)
                             time.sleep(1)
+
                             # Runs client on this Pi
-                            #callOtherScripts(this_Pi, pi.Pi(ver, addr[0]), False)
+                            self.runClient(pi.Pi(ver, addr[0]))
+
                         break
     
+    def runServer(self, localPi):
+        """Runs a TCP server on this Pi, thereby recieving an update file.
+
+        Parameters
+        ----------
+        localPi : Pi
+            the Pi object to designate this Pi
+        
+        Returns
+        -------
+        bool
+            a boolean representing the success of the function
+        """
+
+        # Tries running a TCP server...
+        try:
+            serverAddr = (localPi.getIP(), 1750) # Creates server address with
+                                                 # local IP and Port 1750
+            self.status.emit('Establishing Connection...')
+            time.sleep(1)
+
+            # Starts server
+            with socket.socket() as server:
+                server.bind(serverAddr)
+                server.listen(1) # Listens for remote client
+                server.settimeout(10) # Starts 10 second server timeout timer
+                conn, connaddr = server.accept() # Connects to remote client
+                self.status.emit('Connection Successful!')
+                self.progress.emit(20)
+                time.sleep(1)
+
+                # With successful connection...
+                with conn:
+                    self.status.emit('Downloading...')
+                    self.progress.emit(40)
+                    time.sleep(1)
+                    chunk = conn.recv(4096) # Downloads first chunk (4 kB)
+                    data = chunk # Stores the first chunk
+
+                    # While more chunks exist...
+                    while chunk:
+                        chunk = conn.recv(4096) # Downloads chunks
+                        data = data + chunk # Stores chunks
+                    self.progress.emit(90)
+                    time.sleep(1)
+
+                    # Writes stored data to local update file
+                    with open('update.txt', 'wb') as update:
+                        update.write(data)
+                    #conn.send('File data received.'.encode("utf-8"))
+                    
+                    self.status.emit("Update Downloaded Successfully!")
+                    self.progress.emit(100)
+                    time.sleep(1)
+                    return True
+        except:
+            self.status.emit("Error: Timeout in server.")
+            time.sleep(1)
+            return False
+
+    def runClient(self, remotePi):
+        logging.info("CLIENT")
     
     def stop(self, restart):
         """Stops the thread by setting boolean "running" to false"""
@@ -278,10 +352,6 @@ class PiPhoneTransfer(QDialog):
         loadUi("piphonetransfer.ui",self)
 
 def getSystemIP():
-    """ Collects the IP address using hostname bash command. 
-        This function assumes that bat0 is the only wireless interface utilized
-        Future Work: finding a more robust means of collecting the Mesh IP address
-    """
         batcmd = 'hostname -I'
         get_IP = subprocess.check_output(batcmd, shell = True).strip()
         return get_IP.decode("utf-8")
