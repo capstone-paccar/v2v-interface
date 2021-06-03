@@ -133,7 +133,7 @@ We will configure **batman-adv** such that it takes over the WiFi interface **wl
 * Ethernet must be unplugged for the v2v_interface program to run correctly.
 * Following this guide will disable your Pi's integrated WiFi.
 
-## Setting program to Run on Startup
+## Setting Program to Run on Startup
 Assuming the program was downloaded, to set the v2v_interface program to run on boot, run the following command:
 ```bash
 sudo nano ~/.bashrc
@@ -147,3 +147,35 @@ Then reboot to put the changes into effect:
 ```bash
 sudo reboot
 ```
+
+## Setting up the Touchscreen
+Depending on which screen you use, instructions may very. The following instructions use an UCTRONICS 3.5 Inch Touchscreen for program input.
+
+1. Install **UCTRONICS Drivers**
+
+    See the official [instructions](https://www.uctronics.com/download/Amazon/B0106.pdf) to set up the Raspberry Pi for the touchscreen.
+
+    After the driver installation process reboots your Pi, you may have to change the display resolution. To do this on Raspberry Pi OS, click the Raspberry Pi button in the upper-left corner and go to **Preferences -> Rasbperry Pi Configuration -> Display**. Click the button titled **Set Resolution...** and set the resolution to **CEA Mode 2 720x480 60Hz 4:3**. When you exit or press **OK**, the Pi will restart with a better resolution. If you get a black border around your screen, go back to **Raspberry Pi Configuration -> Display** and check **Disable** where it says **Overscan:**.
+
+2. **Rotate Display** 90°
+
+    Since the program has a vertical GUI, rotating the screen 90° will allow it to be displayed. To do this, run the following command:
+    ```bash
+    sudo nano /boot/config.txt
+    ```
+    And scroll to the bottom of the file. At the very bottom of the file, add one line which contains the following:
+    ```bash
+    display_rotate=1
+    ```
+    Do not reboot yet. We must also rotate the touch interfaces. To do this, run the following command:
+    ```bash
+    sudo nano ~/.bashrc
+    ```
+    And again scroll to the bottom of the file. At the very bottom of the file, add one line which contains the following:
+    ```bash
+    xinput set-prop 'ADS7846 Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+    ```
+    Then reboot to put the changes into effect:
+    ```bash
+    sudo reboot
+    ```
