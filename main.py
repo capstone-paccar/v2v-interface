@@ -36,14 +36,12 @@ from PyQt5.QtWidgets import QApplication
 # Creates application screen
 app = QApplication(sys.argv)
 userScreen = PiPiTransfer()
-technicianScreen = PiPhoneTransfer()
 
 # Creates a stackable widget with multiple screens
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(userScreen)
-widget.addWidget(technicianScreen)
-widget.setFixedHeight(480)
-widget.setFixedWidth(320)
+widget.setFixedHeight(720)
+widget.setFixedWidth(480)
 widget.show()
 
 # Runs main event loop thread and exits when "X" is clicked/tapped

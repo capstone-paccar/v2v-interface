@@ -59,7 +59,11 @@ class MainWorker(QThread):
         self.running = True
 
     def run(self):
-        """Runs the Pi-Pi management program and emits all signals."""
+        """Runs the Pi-Pi management program and emits all signals. The Pi-Pi
+        management program broadcasts the Pi's version number to other Pi's and
+        sets up a server or client depending on the version number recieved from
+        other Pis.
+        """
         
         self.status.emit('Starting...')
         # Reads version number of this Pi
@@ -164,19 +168,67 @@ class MainWorker(QThread):
                     # Writes stored data to local update file
                     with open('update.txt', 'wb') as update:
                         update.write(data)
-                    #conn.send('File data received.'.encode("utf-8"))
                     
                     self.status.emit("Update Downloaded Successfully!")
                     self.progress.emit(100)
                     time.sleep(1)
                     return True
+        
+        # Error in running TCP server...
         except:
             self.status.emit("Error: Timeout in server.")
             time.sleep(1)
             return False
 
     def runClient(self, remotePi):
-        logging.info("CLIENT")
+        """Runs a TCP Client on this Pi, thereby sending an update file.
+
+        Parameters
+        ----------
+        remotePi : Pi
+            the Pi object to designate the remote Pi
+        
+        Returns
+        -------
+        bool
+            a boolean representing the success of the function
+        """
+
+        # Tries running a TCP client...
+        try:  
+            clientAddr = (remotePi.getIP(), 1750) # Creates client address with
+                                                  # local IP and Port 1750
+            self.status.emit('Establishing Connection...')
+            time.sleep(1)
+
+            # Starts client
+            with socket.socket() as client:
+                client.settimeout(10) # Starts 10 second client timeout timer
+                client.connect(clientAddr) # Connects to remote server
+                self.status.emit('Connection Successful!')
+                self.progress.emit(20)
+                time.sleep(1)
+
+                # Reads and sends stored data to server
+                self.status.emit('Sending...')
+                self.progress.emit(40)
+                time.sleep(1)
+                with open('update.txt', 'rb') as update:
+                    client.sendfile(update, 0) # Sends file
+                self.progress.emit(90)
+                time.sleep(1)
+
+                self.status.emit("Update Sent Successfully!")
+                self.progress.emit(100)
+                time.sleep(1)
+                client.close()
+                return True
+        
+        # Error in running TCP server...
+        except:
+            self.status.emit("Error: Timeout in client.")
+            time.sleep(1)
+            return False
     
     def stop(self, restart):
         """Stops the thread by setting boolean "running" to false"""
@@ -224,8 +276,21 @@ class SignalWorker(QThread):
         while(True):
             batcmd = 'sudo iwlist wlan0 scan | egrep -C 2 "my-mesh-network"'
             getSignal = str(subprocess.check_output(batcmd, shell = True))
-            self.signalStrength.emit("{} dBm".format(int(getSignal[50:53])))
-            self.signalQuality.emit("{:.0%}".format(float(getSignal[30:32])/70.0))
+            try:
+                self.signalStrength.emit('{} dBm'.format(int(getSignal[50:53])))
+            except ValueError:
+                self.signalStrength.emit('{} dBm'.format(int(getSignal[50:52])))
+            except:
+                self.signalStrength.emit('Error')
+            
+            try:
+                self.signalQuality.emit('{:.0%}'.format(float(getSignal[30:32])
+                                                        /70.0))
+            except ValueError:
+                self.signalQuality.emit('{:.0%}'.format(float(getSignal[30:31])
+                                                        /70.0))
+            except:
+                self.signalQuality.emit('Error')
 
 class PiPiTransfer(QDialog):
     """The class used to design a window with signals and slots for the Pi-Pi
@@ -256,7 +321,6 @@ class PiPiTransfer(QDialog):
     def __init__(self):
         super(PiPiTransfer, self).__init__()
         loadUi("pipitransfer.ui",self) #editor must only open "Pi GUI Folder"
-        self.technicianButton.clicked.connect(self.technicianMode)
         self.cancelButton.clicked.connect(self.cancelled)
         self.runProgram()
         self.collectSignal()
@@ -276,13 +340,6 @@ class PiPiTransfer(QDialog):
         self.worker2.signalStrength.connect(self.writeSignalStrength)
         self.worker2.signalQuality.connect(self.writeSignalQuality)
         self.worker2.start()
-
-    def technicianMode(self):
-        """Stops the main worker thread and switches screens to Pi-Phone screen.
-            Is called when the technician mode button is pressed.
-        """
-        widget.setCurrentIndex(widget.currentIndex()+1)
-        self.worker.stop(restart = False)
 
     def cancelled(self):
         """Restarts all Threads.
@@ -342,32 +399,29 @@ class PiPiTransfer(QDialog):
         """
         self.versionNum.setText(label)
 
-class PiPhoneTransfer(QDialog):
-    """The class used to design a window with signals and slots for the Pi-Phone
-    management program.
+def getSystemIP():
+    """Uses a subprocess to get the IP of the local Pi.
+
+    Returns
+    -------
+    str
+        a string representing the IP of the local Pi
     """
     
-    def __init__(self):
-        super(PiPhoneTransfer, self).__init__()
-        loadUi("piphonetransfer.ui",self)
-
-def getSystemIP():
-        batcmd = 'hostname -I'
-        get_IP = subprocess.check_output(batcmd, shell = True).strip()
-        return get_IP.decode("utf-8")
+    batcmd = 'hostname -I'
+    getIP = subprocess.check_output(batcmd, shell = True).strip()
+    return getIP.decode("utf-8")
 
 """The following must be run in both gui.py and main.py:"""
 # Creates application screen
 app = QApplication(sys.argv)
 userScreen = PiPiTransfer()
-technicianScreen = PiPhoneTransfer()
 
 # Creates a stackable widget with multiple screens
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(userScreen)
-widget.addWidget(technicianScreen)
-widget.setFixedHeight(480)
-widget.setFixedWidth(320)
+widget.setFixedHeight(720)
+widget.setFixedWidth(480)
 widget.show()
 
 # Runs main event loop thread and exits when "X" is clicked/tapped

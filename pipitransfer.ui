@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>475</height>
+    <width>480</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,14 +18,20 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>320</width>
-     <height>480</height>
+     <width>480</width>
+     <height>720</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="maximumSize">
     <size>
-     <width>320</width>
-     <height>480</height>
+     <width>480</width>
+     <height>720</height>
     </size>
    </property>
    <property name="styleSheet">
@@ -35,13 +41,13 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>20</y>
-      <width>320</width>
-      <height>41</height>
+      <y>30</y>
+      <width>480</width>
+      <height>60</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 75 16pt &quot;MS Shell Dlg 2&quot;;
+     <string notr="true">font: 75 24pt &quot;MS Shell Dlg 2&quot;;
 background-color: rgb(35, 38, 41);
 color: rgb(173, 173, 173);</string>
     </property>
@@ -52,65 +58,47 @@ color: rgb(173, 173, 173);</string>
    <widget class="QPushButton" name="cancelButton">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>360</y>
-      <width>141</width>
-      <height>41</height>
+      <x>135</x>
+      <y>615</y>
+      <width>212</width>
+      <height>62</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">border-radius:7px;
 background-color: rgb(141, 141, 141);
-font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+font: 18pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
      <string>Cancel</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="technicianButton">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>410</y>
-      <width>141</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border-radius:7px;
-background-color: rgb(141, 141, 141);
-font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
-    </property>
-    <property name="text">
-     <string>Technician Mode</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>281</width>
-      <height>261</height>
+      <x>30</x>
+      <y>105</y>
+      <width>422</width>
+      <height>392</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>MS Shell Dlg 2</family>
-      <pointsize>8</pointsize>
+      <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
       <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;
+     <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;
 background-color: rgb(35, 38, 41);
 color: rgb(173, 173, 173);
 border-radius:7px;</string>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;STATUS&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;TRANSFER PROGRESS&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;SIGNAL STRENGTH     SIGNAL QUALITY&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;VERSION&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;STATUS&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;TRANSFER PROGRESS&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;SIGNAL STRENGTH     SIGNAL QUALITY&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;VERSION&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
@@ -135,9 +123,9 @@ border-radius:7px;</string>
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>350</y>
-      <width>320</width>
-      <height>111</height>
+      <y>600</y>
+      <width>480</width>
+      <height>92</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -152,11 +140,16 @@ color: rgb(173, 173, 173);</string>
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>160</y>
-      <width>261</width>
-      <height>16</height>
+      <x>45</x>
+      <y>240</y>
+      <width>392</width>
+      <height>24</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(30, 30, 255);</string>
@@ -174,80 +167,88 @@ color: rgb(173, 173, 173);</string>
    <widget class="QLabel" name="status">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>90</y>
-      <width>261</width>
-      <height>31</height>
+      <x>45</x>
+      <y>135</y>
+      <width>392</width>
+      <height>47</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>14</pointsize>
+      <weight>9</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(35, 38, 41);
 color: rgb(239, 239, 239);
-font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
+font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>Starting...</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Starting...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="signalStrength">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>220</y>
-      <width>81</width>
-      <height>21</height>
+      <x>45</x>
+      <y>330</y>
+      <width>122</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(35, 38, 41);
 color: rgb(239, 239, 239);
-font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
+font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>-97 dB</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Loading...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="signalQuality">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>220</y>
-      <width>81</width>
-      <height>21</height>
+      <x>225</x>
+      <y>330</y>
+      <width>122</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(35, 38, 41);
 color: rgb(239, 239, 239);
-font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
+font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>0%</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Loading...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="versionNum">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>280</y>
-      <width>41</width>
-      <height>21</height>
+      <x>45</x>
+      <y>435</y>
+      <width>122</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(35, 38, 41);
 color: rgb(239, 239, 239);
-font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
+font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>1</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Loading...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <zorder>label_3</zorder>
    <zorder>label_2</zorder>
    <zorder>label</zorder>
    <zorder>cancelButton</zorder>
-   <zorder>technicianButton</zorder>
    <zorder>progressBar</zorder>
    <zorder>status</zorder>
    <zorder>signalStrength</zorder>
