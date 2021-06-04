@@ -140,6 +140,7 @@ sudo nano ~/.bashrc
 ```
 And scroll to the bottom of the file. At the very bottom of the file, add two lines which contain the following:
 ```bash
+sleep 15
 cd v2v_interface
 python3 main.py
 ```
