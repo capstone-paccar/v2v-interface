@@ -11,10 +11,7 @@ of Washington, Bothell in affiliation with PACCAR Inc.
 
 import socket
 
-<<<<<<< HEAD
-=======
 FORMAT = "utf-8"
->>>>>>> 9873ea6891601e9c3b34145b4532a12ff1f9fee2
 class Broadcast:
     """The class used to represent a Broadcast socket for sending or recieving.
 
@@ -72,18 +69,11 @@ class Broadcast:
             return(-1, ("", ""))
 
     #Handles the transmission. and then broadcasts the version number to the network.
-<<<<<<< HEAD
     def txBroadcast(self):
-        """Handles transmitting broadcasts."""
-        self.tx_sock.sendto(bytes(str(self.version), "utf-8"), (self.broadcastAddress, self.port))
-=======
-
-    def tx_broadcast(self):
-        self.tx_sock.sendto(bytes(str(self.version), FORMAT), (self.BROADCAST_ADDRESS, self.PORT))
+        self.tx_sock.sendto(bytes(str(self.version), FORMAT), (self.broadcastAddress, self.PORT))
 
     def close_tx_sock(self):
         self.tx_sock.close()
     
     def close_rx_sock(self):
         self.rx_sock.close()
->>>>>>> 9873ea6891601e9c3b34145b4532a12ff1f9fee2
