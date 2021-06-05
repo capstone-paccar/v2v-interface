@@ -70,7 +70,7 @@ class Broadcast:
 
     #Handles the transmission. and then broadcasts the version number to the network.
     def txBroadcast(self):
-        self.tx_sock.sendto(bytes(str(self.version), FORMAT), (self.broadcastAddress, self.PORT))
+        self.tx_sock.sendto(bytes(str(self.version), FORMAT), (self.broadcastAddress, self.port))
 
     def close_tx_sock(self):
         self.tx_sock.close()
