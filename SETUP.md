@@ -144,6 +144,14 @@ sleep 15
 cd v2v_interface
 python3 main.py
 ```
+Then run the following command:
+```bash
+sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+```
+And at the very bottom of the file, add a line which contains the following:
+```bash
+@lxterminal
+```
 Then reboot to put the changes into effect:
 ```bash
 sudo reboot
