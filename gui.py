@@ -150,29 +150,29 @@ class MainWorker(QThread):
                 self.progress.emit(20)
                 time.sleep(1)
 
-                # With successful connection...
-                with conn:
-                    self.status.emit('Downloading...')
-                    self.progress.emit(40)
-                    time.sleep(1)
-                    chunk = conn.recv(4096) # Downloads first chunk (4 kB)
-                    data = chunk # Stores the first chunk
+            # With successful connection...
+            with conn:
+                self.status.emit('Downloading...')
+                self.progress.emit(40)
+                time.sleep(1)
+                chunk = conn.recv(4096) # Downloads first chunk (4 kB)
+                data = chunk # Stores the first chunk
 
-                    # While more chunks exist...
-                    while chunk:
-                        chunk = conn.recv(4096) # Downloads chunks
-                        data = data + chunk # Stores chunks
-                    self.progress.emit(90)
-                    time.sleep(1)
+                # While more chunks exist...
+                while chunk:
+                    chunk = conn.recv(4096) # Downloads chunks
+                    data = data + chunk # Stores chunks
+                self.progress.emit(90)
+                time.sleep(1)
 
-                    # Writes stored data to local update file
-                    with open('update.txt', 'wb') as update:
-                        update.write(data)
-                    
-                    self.status.emit("Update Downloaded Successfully!")
-                    self.progress.emit(100)
-                    time.sleep(1)
-                    return True
+                # Writes stored data to local update file
+                with open('update.txt', 'wb') as update:
+                    update.write(data)
+
+                self.status.emit("Update Downloaded Successfully!")
+                self.progress.emit(100)
+                time.sleep(1)
+                return True
         
         # Error in running TCP server...
         except:
