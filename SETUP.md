@@ -79,10 +79,13 @@ We will configure **batman-adv** such that it takes over the WiFi interface **wl
     ```
     And ensure the following is written in the file:
     ```d
-    auto bat0
-    iface bat0 inet6 auto
-        pre-up /usr/sbin/batctl if add eth0
-        pre-up /usr/sbin/batctl if add wlan0
+    auto wlan0
+    iface wlan0 inet6 manual
+        mtu 1532
+        wireless-channel 1
+        wireless-essid my-mesh-network
+        wireless-mode ad-hoc
+        wireless-ap 02:12:34:56:78:9A
     ```
 
     Finally, create **bat0**:
@@ -91,13 +94,10 @@ We will configure **batman-adv** such that it takes over the WiFi interface **wl
     ```
     And ensure the following is written in the file:
     ```d
-    auto wlan0
-    iface wlan0 inet6 manual
-        mtu 1532
-        wireless-channel 1
-        wireless-essid my-mesh-network
-        wireless-mode ad-hoc
-        wireless-ap 02:12:34:56:78:9A
+    auto bat0
+    iface bat0 inet6 auto
+        pre-up /usr/sbin/batctl if add eth0
+        pre-up /usr/sbin/batctl if add wlan0
     ```
 
 4. Enabling **Automatic Run-on-Startup**
