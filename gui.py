@@ -1,7 +1,7 @@
 """Graphical User Interface (GUI)
 
 This file designs a graphical-user-interface which runs all Pi-Pi management
-via three threads and four classes.
+via one event loop thread, two worker threads, and a classless method.
 
 Notes
 -------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ class MainWorker(QThread):
 
         The Pi-Pi management code broadcasts the Pi's version number to other
         Pis and sets up a server or client depending on the version number
-        recieved from other Pis.
+        received from other Pis.
     
     Attributes
     ----------
@@ -61,7 +61,7 @@ class MainWorker(QThread):
     def run(self):
         """Runs the Pi-Pi management program and emits all signals. The Pi-Pi
         management program broadcasts the Pi's version number to other Pi's and
-        sets up a server or client depending on the version number recieved from
+        sets up a server or client depending on the version number received from
         other Pis.
         """
         
@@ -84,11 +84,11 @@ class MainWorker(QThread):
             # Retries each time interval
             while (time.time()-oldTime) < 1.0:
                 self.status.emit('Searching...')
-                ver, addr = bdct.rxBroadcast() # Recieves broadcasts on the
+                ver, addr = bdct.rxBroadcast() # Receives broadcasts on the
                                                # network
                 ver = int(ver)
 
-                # If program recieves its own broadcast...
+                # If program receives its own broadcast...
                 if addr[0] ==  this_Pi.getIP()or addr[0] == "": continue
                 else:
                     # If no broadcast found...
