@@ -5,6 +5,13 @@
 
 ## Background
 Standing for "better approach to mobile ad-hoc networking," B.A.T.M.A.N Advanced or **batman-adv** is the linux-based network routing protocol used to manage Ad-Hoc mesh networks in the Vehicle-to-Vehicle Update Delivery System. To learn more about this protocol, here is the [official documentation](https://www.open-mesh.org/projects/batman-adv/wiki/Doc-overview).
+
+### Some Things to Note
+* When running on multiple Pis, ensure that all programming files are the same and that the hostname is different for each Pi.
+* You may also need to change the first line of **update.txt** for each Pi for the program to function.
+* To test further, try pinging another device by using the **ping** command in the terminal followed by the IP address of another Pi.
+* Ethernet must be unplugged for the v2v_interface program to run correctly.
+* Following this guide will disable your Pi's integrated WiFi.
 ***
 
 ## Performing Initial Raspberry Pi Setup
@@ -126,12 +133,6 @@ We will configure **batman-adv** such that it takes over the WiFi interface **wl
     wlan0: active
     ```
     If the second command gives at least one MAC address, those devices are connected to the mesh network.
-
-### Some Things to Note
-* When running on multiple Pis, ensure that all files are the same and that the hostname is different for each Pi.
-* To test further, try pinging another device by using the **ping** command in the terminal followed by the IP address of another Pi.
-* Ethernet must be unplugged for the v2v_interface program to run correctly.
-* Following this guide will disable your Pi's integrated WiFi.
 
 ## Setting Program to Run on Startup
 Assuming the program was downloaded, to set the v2v_interface program to run on boot, run the following command:
