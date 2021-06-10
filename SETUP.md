@@ -8,7 +8,7 @@ Standing for "better approach to mobile ad-hoc networking," B.A.T.M.A.N Advanced
 
 ### Some Things to Note
 * When running on multiple Pis, ensure that all programming files are the same and that the hostname is different for each Pi.
-* You may also need to change the first line of **update.txt** for each Pi for the program to function.
+* You may also need to change the first line of **update.txt** (denoting the version number) for each Pi for the program to function.
 * To test further, try pinging another device by using the **ping** command in the terminal followed by the IP address of another Pi.
 * Ethernet must be unplugged for the v2v_interface program to run correctly.
 * Following this guide will disable your Pi's integrated WiFi.
