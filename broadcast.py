@@ -1,6 +1,6 @@
 """Broadcast
 
-This class designs a transmission and recive socket to broadcast and recive IP
+This class designs a transmission and receive socket to broadcast and receive IP
 Address and Port data.
 
 Notes
@@ -11,9 +11,8 @@ of Washington, Bothell in affiliation with PACCAR Inc.
 
 import socket
 
-FORMAT = "utf-8"
 class Broadcast:
-    """The class used to represent a Broadcast socket for sending or recieving.
+    """The class used to represent a Broadcast socket for sending or receiving.
 
     Attributes
     ----------
@@ -27,7 +26,7 @@ class Broadcast:
     Methods
     -------
     rxBroadcast()
-        handles recieving broadcasts
+        handles receiving broadcasts
     txBroadcast()
         handles transmitting broadcasts
 
@@ -46,16 +45,15 @@ class Broadcast:
         self.tx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.tx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         
-        # Sets up recieving socket
+        # Sets up receiving socket
         self.rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rx_sock.settimeout(0.2)
         self.rx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.rx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.rx_sock.bind(('', self.port))
 
-    #Handles the receiving of broadcasts, it adds IP addresses to the dictionary
     def rxBroadcast(self):
-        """Handles recieving broadcasts.
+        """Handles receiving broadcasts.
         
         Returns
         -------
@@ -68,12 +66,6 @@ class Broadcast:
         except:
             return(-1, ("", ""))
 
-    #Handles the transmission. and then broadcasts the version number to the network.
     def txBroadcast(self):
-        self.tx_sock.sendto(bytes(str(self.version), FORMAT), (self.broadcastAddress, self.port))
-
-    def close_tx_sock(self):
-        self.tx_sock.close()
-    
-    def close_rx_sock(self):
-        self.rx_sock.close()
+        """Handles transmitting broadcasts."""
+        self.tx_sock.sendto(bytes(str(self.version), "utf-8"), (self.broadcastAddress, self.port))
