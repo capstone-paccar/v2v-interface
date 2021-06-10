@@ -4,8 +4,8 @@ This script enables a Raspberry Pi 4 to send files via Ad-Hoc to another Pi
 running the same program and launches a graphical-user-interface to display
 file transfer statistics.
 
-This tool reads and writes from a text file 'update.txt', calls Python files
-'truck_manager.py' and 'gui.py', and classes 'Broadcast' and 'Pi'.
+This tool reads and writes from a text file 'update.txt', calls Python
+script 'gui.py', and classes 'Broadcast' and 'Pi'.
 
 This script requires that 'batman-adv' be installed on the Pi you are running
 this program on.
